@@ -57,20 +57,18 @@ def docker_deploy(CN,RAN):
         print("OAI CN and OAI RAN")
         os.chdir('../')
         #check if directory already exists
-        if os.path.isdir('openairinterface5g'):
+        if os.path.isdir('openairinterface-5g'):
             print('True')
         else:
             print('False')    
-            os.system('git clone https://gitlab.eurecom.fr/oai/openairinterface5g')
-        os.chdir('openairinterface5g')
+            os.system('git clone https://github.com/pragnyakiri/openairinterface-5g')
+        os.chdir('openairinterface-5g')
         os.system('git checkout develop')
         os.system('git pull')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker-compose up -d mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn')
         print("CN is UP")   
-        time.sleep(20)     
-        os.system('docker-compose ps -a')
-        time.sleep(20)     
+        time.sleep(30)     
         os.system('docker-compose ps -a')
         time.sleep(10)
         os.system('docker-compose up -d oai-gnb')
@@ -81,7 +79,7 @@ def docker_deploy(CN,RAN):
         os.system('docker-compose up -d oai-nr-ue')
         time.sleep(20)     
         os.system('docker-compose ps -a')
-        os.system('docker-compose down') 
+        #os.system('docker-compose down') 
 
 
 #start flask app
