@@ -81,7 +81,7 @@ def docker_deploy(CN,RAN):
         os.system('docker-compose up -d oai-nr-ue')
         time.sleep(20)     
         os.system('docker-compose ps -a')
-        #os.system('docker-compose down') 
+        os.system('docker-compose down') 
 
 
 #start flask app
