@@ -6,7 +6,7 @@ import time
 app= Flask(__name__)
 
 
-@app.route('/deploy_Scenario/<CN>/<RAN>')
+@app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
