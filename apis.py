@@ -24,7 +24,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('free5gc-compose')
         os.system('docker-compose down')     
         return jsonify({"response":"success"}), 200
-   elif CN == 'OAI' and RAN == 'OAI':
+    elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
         os.chdir('../')
         os.chdir('openairinterface-5g')
