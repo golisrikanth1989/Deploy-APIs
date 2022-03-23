@@ -79,6 +79,7 @@ def deploy_Scenario(CN,RAN):
         os.system('docker-compose build')
         os.system('docker-compose up -d')
         os.chdir('../..')
+        os.chdir('Deploy_APIs')
         pwd=os.getcwd()
         print(pwd)
         state= 'active' 
@@ -106,6 +107,7 @@ def deploy_Scenario(CN,RAN):
         os.system('sudo docker-compose build')
         os.system('sudo docker-compose up -d --remove-orphans')
         os.chdir('../..')
+        os.chdir('Deploy_APIs')
         pwd=os.getcwd()
         print(pwd)
         state= 'active' 
@@ -142,7 +144,10 @@ def deploy_Scenario(CN,RAN):
         os.system('docker-compose up -d oai-nr-ue')
         time.sleep(20)     
         os.system('docker-compose ps -a')
-        #os.system('docker-compose down') 
+        os.chdir('../../../..')
+        os.chdir('Deploy_APIs')
+        pwd=os.getcwd()
+        print(pwd)        
         state= 'active' 
         CN_Data["State"]=state
         RAN_Data["State"]=state
