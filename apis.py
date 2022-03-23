@@ -11,14 +11,17 @@ def stop_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
+        pwd=os.getcwd()
+        print(pwd)
         os.chdir('../')
-        #check if directory already exists
         os.chdir('5-fi-docker')
         os.chdir('free5gc-compose')
         os.system('docker-compose down')
         return jsonify({"response":"success"}), 200
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
+        pwd=os.getcwd()
+        print(pwd)
         os.chdir('../')
         os.chdir('5-fi-docker-oai')
         os.chdir('free5gc-compose')
@@ -26,6 +29,8 @@ def stop_Scenario(CN,RAN):
         return jsonify({"response":"success"}), 200
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
+        pwd=os.getcwd()
+        print(pwd)
         os.chdir('../')
         os.chdir('openairinterface-5g')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
