@@ -1,17 +1,25 @@
 #import docker
-#from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 import sys, os
 import time
 
-#app= Flask(__name__)
-#client=docker.from_env()
-#stop=0
+app= Flask(__name__)
 
-#@app.route('/deploy_Scenario/<CN>/<RAN>')
+@app.route('/deploy_Scenario/<CN>/<RAN>')
 def docker_deploy(CN,RAN):
+    #dictionaries for json
+    CN_Data={"type_of_cn":'',
+    "no_NFs":0,
+    "no_conn_gNBs":0, #No of gNBs connected
+    "State":'',
+    "no_UPFs":0,
+    "DNN":'internet',
+    }
+
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
+        CN_Data["type_of_cn"]=CN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker'):
@@ -33,9 +41,12 @@ def docker_deploy(CN,RAN):
         os.chdir('../..')
         pwd=os.getcwd()
         print(pwd)
-        #return "success",200
+        state= 'active' 
+        CN_Data["State"]=state
+        return jsonify(CN_Data),200
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
+        CN_Data["type_of_cn"]=CN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker-oai'):
@@ -53,6 +64,9 @@ def docker_deploy(CN,RAN):
         os.chdir('../..')
         pwd=os.getcwd()
         print(pwd)
+        state= 'active' 
+        CN_Data["State"]=state
+        return jsonify(CN_Data),200
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
         os.chdir('../')
@@ -72,7 +86,7 @@ def docker_deploy(CN,RAN):
         os.system('docker-compose ps -a')
         time.sleep(10)
         os.system('docker-compose up -d oai-gnb')
-        time.sleep(20)     
+        time.sleep(20)
         os.system('docker-compose ps -a')
         time.sleep(20)     
         os.system('docker-compose ps -a')
@@ -80,10 +94,13 @@ def docker_deploy(CN,RAN):
         time.sleep(20)     
         os.system('docker-compose ps -a')
         #os.system('docker-compose down') 
+        state= 'active' 
+        CN_Data["State"]=state
+        return jsonify(CN_Data),200
 
 
-#start flask app
-#if __name__=='__main__':
-#    app.run(host = '0.0.0.0',port=sys.argv[1])
+start flask app
+if __name__=='__main__':
+    app.run(host = '0.0.0.0',port=sys.argv[1])
 
-docker_deploy('OAI','OAI')
+#docker_deploy('OAI','OAI')
