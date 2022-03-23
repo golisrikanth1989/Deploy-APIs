@@ -8,6 +8,7 @@ app= Flask(__name__)
 @app.route('/deploy_Scenario/<CN>/<RAN>')
 def docker_deploy(CN,RAN):
     #dictionaries for json
+    Data={"CN_data":[], "RAN_data":[]}
     CN_Data={"type_of_cn":'',
     "no_NFs":0,
     "no_conn_gNBs":0, #No of gNBs connected
@@ -15,11 +16,17 @@ def docker_deploy(CN,RAN):
     "no_UPFs":0,
     "DNN":'internet',
     }
+    RAN_Data={"type_of_ran":'',
+    "no_UEs":0,
+    "no_gNBs":0,
+    "State":'',
+    }
 
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
         CN_Data["type_of_cn"]=CN
+        RAN_Data["type_of_ran"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker'):
@@ -43,10 +50,14 @@ def docker_deploy(CN,RAN):
         print(pwd)
         state= 'active' 
         CN_Data["State"]=state
-        return jsonify(CN_Data),200
+        RAN_Data["State"]=state
+        Data["CN_data"]=CN_Data
+        Data["RAN_data"]=RAN_Data
+        return jsonify(Data),200
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
         CN_Data["type_of_cn"]=CN
+        RAN_Data["type_of_ran"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker-oai'):
@@ -66,9 +77,14 @@ def docker_deploy(CN,RAN):
         print(pwd)
         state= 'active' 
         CN_Data["State"]=state
-        return jsonify(CN_Data),200
+        RAN_Data["State"]=state
+        Data["CN_data"]=CN_Data
+        Data["RAN_data"]=RAN_Data
+        return jsonify(Data),200
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
+        CN_Data["type_of_cn"]=CN
+        RAN_Data["type_of_ran"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('openairinterface-5g'):
@@ -96,10 +112,14 @@ def docker_deploy(CN,RAN):
         #os.system('docker-compose down') 
         state= 'active' 
         CN_Data["State"]=state
-        return jsonify(CN_Data),200
+        RAN_Data["State"]=state
+        Data["CN_data"]=CN_Data
+        Data["RAN_data"]=RAN_Data
+        return jsonify(Data),200
 
 
-start flask app
+
+#start flask app
 if __name__=='__main__':
     app.run(host = '0.0.0.0',port=sys.argv[1])
 
