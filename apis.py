@@ -31,6 +31,7 @@ def count_NFs(client):
     print(no_UEs)
     print(no_gNBs)
     print(no_UPFs)
+    return counts, no_UEs, no_gNBs, no_UPFs
 
 @app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
@@ -121,7 +122,8 @@ def deploy_Scenario(CN,RAN):
         print(pwd)
         state= 'active'
         client=docker.from_env()
-        count_NFs(client)
+        CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
+        CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
         CN_Data["State"]=state
         RAN_Data["State"]=state
         Data["CN_data"]=CN_Data
