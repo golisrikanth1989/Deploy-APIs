@@ -7,6 +7,9 @@ app= Flask(__name__)
 
 
 def count_NFs(client):
+    counts=0
+    no_UEs=0
+    no_gNBs=0
     for container in client.containers.list():
         print(container.name)
         if 'port' in str(container.name) or 'mongo' in str(container.name) or 'webui' in str(container.name) or 'mytb' in str(container.name):
