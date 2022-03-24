@@ -18,7 +18,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('free5gc-compose')
         os.system('docker-compose down')
         os.chdir('../..')
-        os.chdir('Deploy_APIs')
+        os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)         
         return jsonify({"response":"success"}), 200
@@ -31,7 +31,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('free5gc-compose')
         os.system('docker-compose down')
         os.chdir('../..')
-        os.chdir('Deploy_APIs')
+        os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)    
         return jsonify({"response":"success"}), 200
@@ -44,7 +44,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker-compose down')
         os.chdir('../../../..')
-        os.chdir('Deploy_APIs')
+        os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
         return jsonify({"response":"success"}), 200 
@@ -91,7 +91,7 @@ def deploy_Scenario(CN,RAN):
         os.system('docker-compose build')
         os.system('docker-compose up -d')
         os.chdir('../..')
-        os.chdir('Deploy_APIs')
+        os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
         state= 'active' 
@@ -119,7 +119,7 @@ def deploy_Scenario(CN,RAN):
         os.system('sudo docker-compose build')
         os.system('sudo docker-compose up -d --remove-orphans')
         os.chdir('../..')
-        os.chdir('Deploy_APIs')
+        os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
         state= 'active' 
