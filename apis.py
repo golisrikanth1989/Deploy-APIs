@@ -19,9 +19,11 @@ def count_NFs(client):
         if match==False:
             continue        
         if "free5gc" in str(container.image):
-            print(str(container.image))
             print(container.name)
             counts+=1
+        elif "oai" in str(container.name):
+            print(container.name)
+            counts+=1     
         if 'ue' in str(container.name):
             no_UEs+=1
         if 'gnb' in str(container.name):
