@@ -24,7 +24,7 @@ def count_NFs(client):
             counts+=1
         elif "oai" in str(container.name):
             match1 = next((x for x in list_nfs if x in container.name), False)
-            if match==True:
+            if match1==True:
                 print(container.name)
                 counts+=1   
         if 'ue' in str(container.name):
