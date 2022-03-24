@@ -159,7 +159,7 @@ def deploy_Scenario(CN,RAN):
         pwd=os.getcwd()
         print(pwd)   
         os.chdir('../../../..')
-        os.chdir('Deploy_APIs')
+        #os.chdir('Deploy_APIs')
         pwd=os.getcwd()
         print(pwd)        
         state= 'active' 
