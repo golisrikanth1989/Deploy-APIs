@@ -15,12 +15,13 @@ def count_NFs(client):
     no_UPFs=0
     for container in client.containers.list():
         print(container.name)
-        if 'port' in str(container.name) or 'mongo' in str(container.name) or 'webui' in str(container.name) or 'mytb' in str(container.name):
+        if 'port' in str(container.name) or 'mongo' in str(container.name) or 'webui' in str(container.name):
             continue
         match = next((x for x in list_nfs if x in container.name), False)
         if match==False:
-            continue    
+            continue        
         if "free5gc" in str(container.image):
+            print(container.name)
             counts+=1
         if 'ue' in str(container.name):
             no_UEs+=1
