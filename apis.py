@@ -6,7 +6,8 @@ import time
 app= Flask(__name__)
 
 
-list_nfs=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf','n3iwf']    
+list_valid=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
+list_nfs=['nrf','amf','upf','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
 
 def count_NFs(client):
     counts=0
@@ -15,15 +16,17 @@ def count_NFs(client):
     no_UPFs=0
     for container in client.containers.list():
         print(container.name)
-        match = next((x for x in list_nfs if x in container.name), False)
+        match = next((x for x in list_valid if x in container.name), False)
         if match==False:
             continue        
         if "free5gc" in str(container.image):
             print(container.name)
             counts+=1
-        elif "oai" in str(container.name) and match==True:
-            print(container.name)
-            counts+=1     
+        elif "oai" in str(container.name):
+            match1 = next((x for x in list_nfs if x in container.name), False)
+            if match==True:
+                print(container.name)
+                counts+=1   
         if 'ue' in str(container.name):
             no_UEs+=1
         if 'gnb' in str(container.name):
