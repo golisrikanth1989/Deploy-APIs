@@ -1,10 +1,22 @@
-#import docker
+import docker
 from flask import Flask, request, jsonify
 import sys, os
 import time
 
 app= Flask(__name__)
 
+
+def count_NFs(client):
+    for container in client.containers.list():
+        if "free5gc" in str(container.image):
+            counts+=1
+        if 'ue' in str(container.name):
+            no_UEs+=1
+        if 'gnb' in str(container.name):
+            no_gNBs+=1
+        print(counts)
+        print(no_UEs)
+        print(no_gNBs)
 
 @app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
@@ -54,14 +66,13 @@ def stop_Scenario(CN,RAN):
 def deploy_Scenario(CN,RAN):
     #dictionaries for json
     Data={"CN_data":[], "RAN_data":[]}
-    CN_Data={"type_of_cn":'',
+    CN_Data={"Make_of_CN":'',
     "no_NFs":0,
     "no_conn_gNBs":0, #No of gNBs connected
     "State":'',
     "no_UPFs":0,
-    "DNN":'internet',
     }
-    RAN_Data={"type_of_ran":'',
+    RAN_Data={"Make_of_RAN":'',
     "no_UEs":0,
     "no_gNBs":0,
     "State":'',
@@ -70,8 +81,8 @@ def deploy_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
-        CN_Data["type_of_cn"]=CN
-        RAN_Data["type_of_ran"]=RAN
+        CN_Data["Make_of_CN"]=CN
+        RAN_Data["Make_of_RAN"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker'):
@@ -94,7 +105,9 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        state= 'active' 
+        state= 'active'
+        client=docker.from_env()
+        count_NFs(client)
         CN_Data["State"]=state
         RAN_Data["State"]=state
         Data["CN_data"]=CN_Data
@@ -102,8 +115,8 @@ def deploy_Scenario(CN,RAN):
         return jsonify(Data),200
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
-        CN_Data["type_of_cn"]=CN
-        RAN_Data["type_of_ran"]=RAN
+        CN_Data["Make_of_CN"]=CN
+        RAN_Data["Make_of_RAN"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker-oai'):
@@ -130,8 +143,8 @@ def deploy_Scenario(CN,RAN):
         return jsonify(Data),200
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
-        CN_Data["type_of_cn"]=CN
-        RAN_Data["type_of_ran"]=RAN
+        CN_Data["Make_of_CN"]=CN
+        RAN_Data["Make_of_RAN"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('openairinterface-5g'):
@@ -156,11 +169,7 @@ def deploy_Scenario(CN,RAN):
         os.system('docker-compose up -d oai-nr-ue')
         time.sleep(20)     
         os.system('docker-compose ps -a')
-        pwd=os.getcwd()
-        print(pwd)   
-        os.chdir('../../../..')
-        pwd=os.getcwd()
-        print(pwd)        
+        os.chdir('../../../..')      
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd) 
