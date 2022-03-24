@@ -6,23 +6,32 @@ import time
 app= Flask(__name__)
 
 
+list_nfs=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf']    
+
 def count_NFs(client):
     counts=0
     no_UEs=0
     no_gNBs=0
+    no_UPFs=0
     for container in client.containers.list():
         print(container.name)
         if 'port' in str(container.name) or 'mongo' in str(container.name) or 'webui' in str(container.name) or 'mytb' in str(container.name):
             continue
+        match = next((x for x in list_nfs if x in container.name), False)
+        if match==False:
+            continue    
         if "free5gc" in str(container.image):
             counts+=1
         if 'ue' in str(container.name):
             no_UEs+=1
         if 'gnb' in str(container.name):
             no_gNBs+=1
+        if 'upf' in str(container.name):
+            no_UPFs+=1            
     print(counts)
     print(no_UEs)
     print(no_gNBs)
+    print(no_UPFs)
 
 @app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
