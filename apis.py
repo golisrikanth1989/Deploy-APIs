@@ -8,15 +8,18 @@ app= Flask(__name__)
 
 def count_NFs(client):
     for container in client.containers.list():
+        print(container.name)
+        if 'port' in str(container.name) or 'mongo' in str(container.name) or 'webui' in str(container.name) or 'mytb' in str(container.name):
+            continue
         if "free5gc" in str(container.image):
             counts+=1
         if 'ue' in str(container.name):
             no_UEs+=1
         if 'gnb' in str(container.name):
             no_gNBs+=1
-        print(counts)
-        print(no_UEs)
-        print(no_gNBs)
+    print(counts)
+    print(no_UEs)
+    print(no_gNBs)
 
 @app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
