@@ -33,8 +33,10 @@ def count_NFs(client):
             no_UEs+=1
         if 'gnb' in str(container.name):
             no_gNBs+=1
-        if 'upf' in str(container.name):
-            no_UPFs+=1            
+        if "free5gc" in str(container.image) and 'upf' in str(container.name):
+            no_UPFs+=1
+        elif "oai" in str(container.name) and 'spgwu' in str(container.name):    
+            no_UPFs+=1      
     print(counts)
     print(no_UEs)
     print(no_gNBs)
