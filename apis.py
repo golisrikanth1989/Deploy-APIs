@@ -29,12 +29,15 @@ def get_IPaddress(client,id):
     return ip_add    
 
 def ues_served(client, id):
+    print("ues_served")
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
             run = container.exec_run('echo "$GNB_HOSTNAME"')
             out=run.output.decode("utf-8")
+            print(out)
             if id.name in str(out):
+                print(id.name)
                 list_ue_containers.append(container)
     return list_ue_containers
 
@@ -47,19 +50,18 @@ def count_NFs(client):
     no_gNBs=0
     no_UPFs=0
     for container in client.containers.list():
-        #print(container.name)
         match = next((x for x in list_valid if x in container.name), False)
         if match==False:
             continue        
         if "free5gc" in str(container.image):
-            print(container.name)
+            #print(container.name)
             counts+=1
         elif "oai" in str(container.name):
-            print(container.name)
+            #print(container.name)
             match1 = next((x for x in list_nfs if x in container.name), False)
-            print(match1)
+            #print(match1)
             if match1!=False:
-                print(container.name)
+                #print(container.name)
                 counts+=1   
         if 'ue' in str(container.name):
             no_UEs+=1
@@ -69,10 +71,10 @@ def count_NFs(client):
             no_UPFs+=1
         elif "oai" in str(container.name) and 'spgwu' in str(container.name):    
             no_UPFs+=1      
-    print(counts)
-    print(no_UEs)
-    print(no_gNBs)
-    print(no_UPFs)
+    #print(counts)
+    #print(no_UEs)
+    #print(no_gNBs)
+    #print(no_UPFs)
     return counts, no_UEs, no_gNBs, no_UPFs
 
 def display_gNBDetails(client):
