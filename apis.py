@@ -5,6 +5,38 @@ import time
 
 app= Flask(__name__)
 
+def num_PDUsessions(client,id):
+    for container in client.containers.list():
+        if id in str(container.id):
+            run=container.exec_run('nr-cli --dump')
+            temp1=(run.output.decode("utf-8")).split("\n")
+            ue_imsi=temp1[0]
+            temp1=container.exec_run('nr-cli ' + ue_imsi + ' -e ps-list')
+            temp2=(temp1.output.decode("utf-8")).split("PDU Session")
+            st = "state: PS-ACTIVE"
+            res = [i for i in temp2 if st in i]
+            return len(res)
+
+def get_IPaddress(client,id):
+    container=client.containers.list(filters={"id":id})
+    if len(container)==0:
+        print ("no container running with given id")
+        return
+    try:
+        ip_add = container[0].attrs["NetworkSettings"]["Networks"]["free5gc-compose_privnet"]["IPAddress"]
+    except: 
+        print ("Error in getting IP address")
+    return ip_add    
+
+def ues_served(client, id):
+    list_ue_containers=[]
+    for container in client.containers.list():
+        if 'ue' in container.name:
+            run = container.exec_run('echo "$GNB_HOSTNAME"')
+            out=run.output.decode("utf-8")
+            if id.name in str(out):
+                list_ue_containers.append(container)
+    return list_ue_containers
 
 list_valid=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
 list_nfs=['nrf','amf','upf','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
@@ -43,6 +75,21 @@ def count_NFs(client):
     print(no_UPFs)
     return counts, no_UEs, no_gNBs, no_UPFs
 
+def display_gNBDetails(client):
+    print("display_gNBDetails")
+    for container in client.containers.list():
+        if 'gnb' in container.name:
+            print(container.name)
+            #no_servedUEs = measurements.get_num_ActiveUEs(client,container[0].id)
+            #no_ActiveUEs = measurements.get_num_ActiveUEs(client,container[0].id)
+            no_PDUsessions = 0
+            for ue in ues_served(client,container):
+                no_PDUsessions += num_PDUsessions(client,ue.id)
+            Management_IP = get_IPaddress(client,container.id)
+            print(Management_IP)
+            print(no_PDUsessions)
+
+###############################################################
 @app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
@@ -134,6 +181,7 @@ def deploy_Scenario(CN,RAN):
         client=docker.from_env()
         CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
         CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
+        display_gNBDetails(client)
         CN_Data["State"]=state
         RAN_Data["State"]=state
         Data["CN_data"]=CN_Data
