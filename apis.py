@@ -34,7 +34,7 @@ def ues_served(client, id):
     for container in client.containers.list():
         if 'ue' in container.name:
             print(container.name)
-            run = container.exec_run('echo $GNB_HOSTNAME')
+            run = container.exec_run("echo $GNB_HOSTNAME", stdout=True)
             print(run)
             out=run.output.decode("utf-8")
             print(out)
