@@ -10,11 +10,13 @@ def num_PDUsessions(client,id):
     for container in client.containers.list():
         if id in str(container.id):
             run=container.exec_run('nr-cli --dump')
-            print(run)
             temp1=(run.output.decode("utf-8")).split("\n")
             ue_imsi=temp1[0]
+            print(ue_imsi)
             temp1=container.exec_run('nr-cli ' + ue_imsi + ' -e ps-list')
+            print(temp1)
             temp2=(temp1.output.decode("utf-8")).split("PDU Session")
+            print(temp2)
             st = "state: PS-ACTIVE"
             res = [i for i in temp2 if st in i]
             return len(res)
