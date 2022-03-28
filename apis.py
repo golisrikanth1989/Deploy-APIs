@@ -28,21 +28,22 @@ def get_IPaddress(client,id):
         print ("Error in getting IP address")
     return ip_add    
 
-def ues_served(client, id):
+
+def ues_served(client):#, id):
     print("ues_served")
-    list_ue_containers=[]
+    #list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
             print(container.name)
             #run = container.exec_run("echo $GNB_HOSTNAME", stdout=True)
-            run = container.exec_run(cmd='echo $(GNB_HOSTNAME /)')
+            run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
             print(run)
             out=run.output.decode("utf-8")
             print(out)
-            if id.name in str(out):
-                print(id.name)
-                list_ue_containers.append(container)
-    return list_ue_containers
+            #if id.name in str(out):
+            #    print(id.name)
+            #    list_ue_containers.append(container)
+    #return list_ue_containers
 
 list_valid=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
 list_nfs=['nrf','amf','upf','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
@@ -272,3 +273,8 @@ if __name__=='__main__':
     app.run(host = '0.0.0.0',port=sys.argv[1])
 
 #docker_deploy('OAI','OAI')
+client=docker.from_env()
+id="d477c3f6c800"
+#container=client.containers.list(filters={"id":id})
+#container[0].exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
+ues_served(client)
