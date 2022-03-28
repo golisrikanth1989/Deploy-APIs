@@ -30,16 +30,12 @@ def get_IPaddress(client,id):
 
 
 def ues_served(client, id):
-    print("ues_served")
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
-            print(container.name)
             run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
             out=run.output.decode("utf-8")
-            print(out)
             if id.name in str(out):
-                print(id.name)
                 list_ue_containers.append(container)
     return list_ue_containers
 
