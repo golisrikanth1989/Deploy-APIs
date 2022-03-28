@@ -6,9 +6,11 @@ import time
 app= Flask(__name__)
 
 def num_PDUsessions(client,id):
+    print("num_PDUsessions")
     for container in client.containers.list():
         if id in str(container.id):
             run=container.exec_run('nr-cli --dump')
+            print(run)
             temp1=(run.output.decode("utf-8")).split("\n")
             ue_imsi=temp1[0]
             temp1=container.exec_run('nr-cli ' + ue_imsi + ' -e ps-list')
@@ -79,7 +81,9 @@ def display_gNBDetails(client):
             #no_servedUEs = measurements.get_num_ActiveUEs(client,container[0].id)
             #no_ActiveUEs = measurements.get_num_ActiveUEs(client,container[0].id)
             no_PDUsessions = 0
-            for ue in ues_served(client,container):
+            ues = ues_served(client,container)
+            print(ues)
+            for ue in ues:
                 no_PDUsessions += num_PDUsessions(client,ue.id)
             Management_IP = get_IPaddress(client,container.id)
             print(Management_IP)
