@@ -73,19 +73,18 @@ def count_NFs(client):
 
 def display_gNBDetails(client):
     print("display_gNBDetails")
-    List_gNBs:[]
+    List_gNBs=[]
 
     for container in client.containers.list():
         if 'gnb' in container.name:
-            gNB_details={"Name_of_gNB":'',
-            "no_PDUsess":0,
-            "no_UEs":0, #No of gNBs connected
-            "Management_IP":'',
-            }
+            # gNB_details={"Name_of_gNB":'',
+            # "no_PDUsess":0,
+            # "no_UEs":0,
+            # "Management_IP":'',
+            # }
+            gNB_details = {}
             print(container.name)
             gNB_details["Name_of_gNB"]=container.name
-            #no_servedUEs = measurements.get_num_ActiveUEs(client,container[0].id)
-            #no_ActiveUEs = measurements.get_num_ActiveUEs(client,container[0].id)
             no_PDUsessions = 0
             ues = ues_served(client,container)
             print(ues)
