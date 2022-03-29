@@ -35,7 +35,7 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
         print ("no container running with given id")
         return
     try:
-        run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
+        run = container[0].exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
         out=run.output.decode("utf-8")
         print(out)
     except: 
