@@ -29,6 +29,20 @@ def get_IPaddress(client,id):
     return ip_add    
 
 
+def get_gNB(client, id): # get gNB for the UE with container id = id
+    container=client.containers.list(filters={"id":id})
+    if len(container)==0:
+        print ("no container running with given id")
+        return
+    try:
+        run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
+        out=run.output.decode("utf-8")
+        print(out)
+    except: 
+        print ("Error in running exec_run")    
+    return out
+
+
 def ues_served(client, id):
     list_ue_containers=[]
     for container in client.containers.list():
@@ -78,11 +92,6 @@ def display_gNBDetails(client):
     for container in client.containers.list():
         gNB_details = {}
         if 'gnb' in container.name:
-            # gNB_details={"Name_of_gNB":'',
-            # "no_PDUsess":0,
-            # "no_UEs":0,
-            # "Management_IP":'',
-            # }
             print(container.name)
             gNB_details["Name_of_gNB"]=container.name
             no_PDUsessions = 0
@@ -96,6 +105,22 @@ def display_gNBDetails(client):
             gNB_details["State"] = state
             List_gNBs.append(gNB_details)
     return List_gNBs        
+
+
+def display_UEDetails(client):
+    print("display_UEDetails")
+    List_UEs=[]
+    for container in client.containers.list():
+        UE_details = {}
+        if 'ue' in container.name:
+            print(container.name)
+            UE_details["Name_of_UE"]=container.name
+            UE_details["Connected to gNB"] =  get_gNB(client,container.id)   
+            UE_details["Management_IP"] = get_IPaddress(client,container.id)
+            state= 'Connected'
+            UE_details["State"] = state
+            List_UEs.append(UE_details)
+    return List_UEs 
 
 ###############################################################
 @app.route('/stop_Scenario/<CN>/<RAN>')
@@ -156,6 +181,7 @@ def deploy_Scenario(CN,RAN):
     "no_UEs":0,
     "no_gNBs":0,
     "gNB_List":[],
+    "UE_List":[],
     }
 
     # select scenario of CN and RAN and then deploy the scenario
@@ -190,8 +216,10 @@ def deploy_Scenario(CN,RAN):
         CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
         CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
         gnb_List = display_gNBDetails(client)
+        UE_List = display_UEDetails(client)
         CN_Data["State"]=state
         RAN_Data["gNB_List"]=gnb_List
+        RAN_Data["UE_List"]=UE_List
         Data["CN_data"]=CN_Data
         Data["RAN_data"]=RAN_Data
         return jsonify(Data),200
