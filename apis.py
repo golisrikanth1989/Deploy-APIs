@@ -87,13 +87,15 @@ def display_gNBDetails(client):
             gNB_details["Name_of_gNB"]=container.name
             no_PDUsessions = 0
             ues = ues_served(client,container)
-            print(ues)
             gNB_details["no_UEs"] = len(ues)
             for ue in ues:
                 no_PDUsessions += num_PDUsessions(client,ue.id)
             gNB_details["no_PDUsess"] =  no_PDUsessions   
             gNB_details["Management_IP"] = get_IPaddress(client,container.id)
+            state= 'active'
+            gNB_details["State"] = state
             List_gNBs.append(gNB_details)
+    return List_gNBs        
 
 ###############################################################
 @app.route('/stop_Scenario/<CN>/<RAN>')
@@ -153,7 +155,7 @@ def deploy_Scenario(CN,RAN):
     RAN_Data={"Make_of_RAN":'',
     "no_UEs":0,
     "no_gNBs":0,
-    "State":'',
+    "gNB_List":[],
     }
 
     # select scenario of CN and RAN and then deploy the scenario
@@ -187,9 +189,9 @@ def deploy_Scenario(CN,RAN):
         client=docker.from_env()
         CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
         CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
-        display_gNBDetails(client)
+        gnb_List = display_gNBDetails(client)
         CN_Data["State"]=state
-        RAN_Data["State"]=state
+        RAN_Data["gNB_List"]=gnb_List
         Data["CN_data"]=CN_Data
         Data["RAN_data"]=RAN_Data
         return jsonify(Data),200
