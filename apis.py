@@ -73,19 +73,28 @@ def count_NFs(client):
 
 def display_gNBDetails(client):
     print("display_gNBDetails")
+    List_gNBs:[]
+
     for container in client.containers.list():
         if 'gnb' in container.name:
+            gNB_details={"Name_of_gNB":'',
+            "no_PDUsess":0,
+            "no_UEs":0, #No of gNBs connected
+            "Management_IP":'',
+            }
             print(container.name)
+            gNB_details["Name_of_gNB"]=container.name
             #no_servedUEs = measurements.get_num_ActiveUEs(client,container[0].id)
             #no_ActiveUEs = measurements.get_num_ActiveUEs(client,container[0].id)
             no_PDUsessions = 0
             ues = ues_served(client,container)
             print(ues)
+            gNB_details["no_UEs"] = len(ues)
             for ue in ues:
                 no_PDUsessions += num_PDUsessions(client,ue.id)
-            Management_IP = get_IPaddress(client,container.id)
-            print(Management_IP)
-            print(no_PDUsessions)
+            gNB_details["no_PDUsess"] =  no_PDUsessions   
+            gNB_details["Management_IP"] = get_IPaddress(client,container.id)
+            List_gNBs.append(gnb_details)
 
 ###############################################################
 @app.route('/stop_Scenario/<CN>/<RAN>')
