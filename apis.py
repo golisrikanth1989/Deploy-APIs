@@ -97,11 +97,11 @@ def display_gNBDetails(client):
             no_PDUsessions = 0
             ues = ues_served(client,container)
             gNB_details["no_UEs"] = len(ues)
-            for ue in ues:
-                no_PDUsessions += num_PDUsessions(client,ue.id)
-            gNB_details["no_PDUsess"] =  no_PDUsessions   
+            #for ue in ues:
+            #    no_PDUsessions += num_PDUsessions(client,ue.id)
+            #gNB_details["no_PDUsess"] =  no_PDUsessions   
             gNB_details["Management_IP"] = get_IPaddress(client,container.id)
-            state= 'active'
+            state= 'Active'
             gNB_details["State"] = state
             List_gNBs.append(gNB_details)
     return List_gNBs        
@@ -211,7 +211,7 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        state= 'active'
+        state= 'Active'
         client=docker.from_env()
         CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
         CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
@@ -249,8 +249,11 @@ def deploy_Scenario(CN,RAN):
         client=docker.from_env()
         CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
         CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
+        gnb_List = display_gNBDetails(client)
+        UE_List = display_UEDetails(client)
         CN_Data["State"]=state
-        RAN_Data["State"]=state
+        RAN_Data["gNB_List"]=gnb_List
+        RAN_Data["UE_List"]=UE_List
         Data["CN_data"]=CN_Data
         Data["RAN_data"]=RAN_Data
         return jsonify(Data),200
@@ -290,8 +293,11 @@ def deploy_Scenario(CN,RAN):
         client=docker.from_env()
         CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
         CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
+        gnb_List = display_gNBDetails(client)
+        UE_List = display_UEDetails(client)
         CN_Data["State"]=state
-        RAN_Data["State"]=state
+        RAN_Data["gNB_List"]=gnb_List
+        RAN_Data["UE_List"]=UE_List
         Data["CN_data"]=CN_Data
         Data["RAN_data"]=RAN_Data
         return jsonify(Data),200
