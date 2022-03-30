@@ -18,22 +18,21 @@ def num_PDUsessions(client,id):
             return len(res)
 
 def get_IPaddress(client,id):
-    print("get_IPaddress")
     container=client.containers.list(filters={"id":id})
-    print(container[0].name)
     if len(container)==0:
         print ("no container running with given id")
         return
     try:
-        if 'oai' in container[0].name:
+        if 'rfsim' in container[0].name:
             run = container[0].exec_run(['sh', '-c', 'hostname -i'])
-            ip_add=run.output.decode("utf-8")
-            print(ip_add)
+            ip_add=(run.output.decode("utf-8")).split("\n")
+            return ip_add[0]
         else:    
             ip_add = container[0].attrs["NetworkSettings"]["Networks"]["free5gc-compose_privnet"]["IPAddress"]
+            return ip_add
     except: 
         print ("Error in getting IP address")
-    return ip_add    
+        return    
 
 
 def get_gNB(client, id): # get gNB for the UE with container id = id
@@ -45,12 +44,10 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
         if 'oai' in container[0].name:
             run = container[0].exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
             out=(run.output.decode("utf-8")).split("\n")
-            print(out[0])
             return out[0]
         else:
             run = container[0].exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
             out=run.output.decode("utf-8")
-            print(out)
             return out
     except: 
         print ("Error in running exec_run")    
