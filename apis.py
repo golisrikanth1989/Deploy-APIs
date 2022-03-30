@@ -35,9 +35,14 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
         print ("no container running with given id")
         return
     try:
-        run = container[0].exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
-        out=run.output.decode("utf-8")
-        print(out)
+        if 'oai' in container.name:
+            run = container[0].exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
+            out=run.output.decode("utf-8")
+            print(out)
+        else:
+            run = container[0].exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
+            out=run.output.decode("utf-8")
+            print(out)
     except: 
         print ("Error in running exec_run")    
     return out
