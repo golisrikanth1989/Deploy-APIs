@@ -58,6 +58,7 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
 
 def ues_served(client, id):
     print("ues_served")
+    print(id)
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
@@ -65,9 +66,9 @@ def ues_served(client, id):
             if 'oai' in container.name:
                 run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
                 out=(run.output.decode("utf-8")).split("\n")
+                print(out)
                 ip = get_IPaddress(client,id)
                 print(ip)
-                print(out)
                 if ip == out[0]:
                     print(out[0])
                     list_ue_containers.append(container)
@@ -119,7 +120,7 @@ def display_gNBDetails(client):
         if 'gnb' in container.name:
             print(container.name)
             gNB_details["Name_of_gNB"]=container.name
-            no_PDUsessions = 0
+            #no_PDUsessions = 0
             ues = ues_served(client,container)
             gNB_details["no_UEs"] = len(ues)
             #for ue in ues:
