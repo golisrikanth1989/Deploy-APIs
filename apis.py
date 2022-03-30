@@ -18,6 +18,7 @@ def num_PDUsessions(client,id):
             return len(res)
 
 def get_IPaddress(client,id):
+    print("get_IPaddress")
     container=client.containers.list(filters={"id":id})
     if len(container)==0:
         print ("no container running with given id")
@@ -36,6 +37,7 @@ def get_IPaddress(client,id):
 
 
 def get_gNB(client, id): # get gNB for the UE with container id = id
+    print("get_gnb")
     container=client.containers.list(filters={"id":id})
     if len(container)==0:
         print ("no container running with given id")
@@ -59,11 +61,14 @@ def ues_served(client, id):
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
+            print(container.name)
             if 'oai' in container.name:
                 run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
                 out=(run.output.decode("utf-8")).split("\n")
                 ip = get_IPaddress(client,id)
-                if ip in str(out[0]):
+                print(ip)
+                print(out)
+                if ip == out[0]:
                     print(out[0])
                     list_ue_containers.append(container)
             else:
