@@ -55,13 +55,22 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
 
 
 def ues_served(client, id):
+    print("ues_served")
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
-            run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
-            out=run.output.decode("utf-8")
-            if id.name in str(out):
-                list_ue_containers.append(container)
+            if 'oai' in container.name:
+                run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
+                out=(run.output.decode("utf-8")).split("\n")
+                ip = get_IPaddress(client,id)
+                if ip in str(out[0]):
+                    print(out[0])
+                    list_ue_containers.append(container)
+            else:
+                run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
+                out=run.output.decode("utf-8")
+                if id.name in str(out):
+                    list_ue_containers.append(container)
     return list_ue_containers
 
 list_valid=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
