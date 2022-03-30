@@ -18,7 +18,9 @@ def num_PDUsessions(client,id):
             return len(res)
 
 def get_IPaddress(client,id):
+    print("get_IPaddress")
     container=client.containers.list(filters={"id":id})
+    print(container[0].name)
     if len(container)==0:
         print ("no container running with given id")
         return
