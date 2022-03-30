@@ -25,7 +25,12 @@ def get_IPaddress(client,id):
         print ("no container running with given id")
         return
     try:
-        ip_add = container[0].attrs["NetworkSettings"]["Networks"]["free5gc-compose_privnet"]["IPAddress"]
+        if 'oai' in container[0].name:
+            run = container[0].exec_run(['sh', '-c', 'hostname -i'])
+            ip_add=run.output.decode("utf-8")
+            print(ip_add)
+        else:    
+            ip_add = container[0].attrs["NetworkSettings"]["Networks"]["free5gc-compose_privnet"]["IPAddress"]
     except: 
         print ("Error in getting IP address")
     return ip_add    
