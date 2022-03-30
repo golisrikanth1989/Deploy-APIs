@@ -20,6 +20,7 @@ def num_PDUsessions(client,id):
 def get_IPaddress(client,id):
     print("get_IPaddress")
     print(client.containers.list(all=True))
+    print(id)
     container=client.containers.list(all=True, filters={"id":id})
     print(container)
     if len(container)==0:
