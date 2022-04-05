@@ -57,9 +57,9 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
         return
 
 
-def ues_served(client, id):
+def ues_served(client, container1):
     print("ues_served")
-    print(id)
+    print(container1.id)
     list_ue_containers=[]
     for container in client.containers.list():
         try:
@@ -68,7 +68,8 @@ def ues_served(client, id):
                 if 'oai' in container.name:
                     run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
                     out=(run.output.decode("utf-8")).split("\n")
-                    ip = get_IPaddress(client,id)
+                    print(out)
+                    ip = get_IPaddress(client,container1.id)
                     if ip == out[0]:
                         list_ue_containers.append(container)
                 else:
@@ -76,8 +77,8 @@ def ues_served(client, id):
                     out=run.output.decode("utf-8")
                     print(out)
                     print(type(out))
-                    print(id.name)
-                    if id.name in str(out):
+                    print(container1.name)
+                    if container1.name in str(out):
                         list_ue_containers.append(container)
         except: 
             print ("Error in ues_served")    
@@ -117,16 +118,16 @@ def count_NFs(client):
     return counts, no_UEs, no_gNBs, no_UPFs
 
 def display_gNBDetails(client):
-    #print("display_gNBDetails")
+    print("display_gNBDetails")
     List_gNBs=[]
     gNB_details = {}
     for container in client.containers.list():
         gNB_details = {}
         if 'gnb' in container.name:
-            #print(container.name)
+            print(container.name)
             gNB_details["Name_of_gNB"]=container.name
             #no_PDUsessions = 0
-            ues = ues_served(client,container.id)
+            ues = ues_served(client,container)
             gNB_details["no_UEs"] = len(ues)
             #for ue in ues:
             #    no_PDUsessions += num_PDUsessions(client,ue.id)
