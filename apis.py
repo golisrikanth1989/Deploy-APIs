@@ -19,10 +19,10 @@ def num_PDUsessions(client,id):
 
 def get_IPaddress(client,id):
     print("get_IPaddress")
-    print(client.containers.list())
-    print(id)
+    #print(client.containers.list())
+    #print(id)
     container=client.containers.list(filters={"id":id})
-    print(container)
+    #print(container)
     if len(container)==0:
         print ("no container running with given id")
         return
@@ -61,7 +61,7 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
 
 def ues_served(client, id):
     print("ues_served")
-    print(id)
+    #print(id)
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
