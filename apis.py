@@ -62,22 +62,26 @@ def ues_served(client, id):
     print(id)
     list_ue_containers=[]
     for container in client.containers.list():
-        if 'ue' in container.name:
-            print(container.name)
-            if 'oai' in container.name:
-                run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
-                out=(run.output.decode("utf-8")).split("\n")
-                ip = get_IPaddress(client,id)
-                if ip == out[0]:
-                    list_ue_containers.append(container)
-            else:
-                run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
-                out=run.output.decode("utf-8")
-                print(out)
-                print(type(out))
-                print(id.name)
-                if id.name in str(out):
-                    list_ue_containers.append(container)
+        try:
+            if 'ue' in container.name:
+                print(container.name)
+                if 'oai' in container.name:
+                    run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
+                    out=(run.output.decode("utf-8")).split("\n")
+                    ip = get_IPaddress(client,id)
+                    if ip == out[0]:
+                        list_ue_containers.append(container)
+                else:
+                    run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
+                    out=run.output.decode("utf-8")
+                    print(out)
+                    print(type(out))
+                    print(id.name)
+                    if id.name in str(out):
+                        list_ue_containers.append(container)
+        except: 
+            print ("Error in ues_served")    
+        
     return list_ue_containers
 
 list_valid=['nrf','amf','upf','gnb','ue','udm','udr','smf','ausf','nssf','pcf','n3iwf','spgwu']  
