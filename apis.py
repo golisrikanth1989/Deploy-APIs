@@ -59,6 +59,7 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
 
 def ues_served(client, id):
     print("ues_served")
+    print(id)
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
