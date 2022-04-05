@@ -124,7 +124,7 @@ def display_gNBDetails(client):
             print(container.name)
             gNB_details["Name_of_gNB"]=container.name
             #no_PDUsessions = 0
-            ues = ues_served(client,container)
+            ues = ues_served(client,container.id)
             gNB_details["no_UEs"] = len(ues)
             #for ue in ues:
             #    no_PDUsessions += num_PDUsessions(client,ue.id)
