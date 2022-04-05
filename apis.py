@@ -18,9 +18,7 @@ def num_PDUsessions(client,id):
             return len(res)
 
 def get_IPaddress(client,id):
-    print("get_IPaddress")
-    #print(client.containers.list())
-    #print(id)
+    #print("get_IPaddress")
     container=client.containers.list(filters={"id":id})
     #print(container)
     if len(container)==0:
@@ -40,7 +38,7 @@ def get_IPaddress(client,id):
 
 
 def get_gNB(client, id): # get gNB for the UE with container id = id
-    print("get_gnb")
+    #print("get_gnb")
     container=client.containers.list(filters={"id":id})
     if len(container)==0:
         print ("no container running with given id")
@@ -61,7 +59,6 @@ def get_gNB(client, id): # get gNB for the UE with container id = id
 
 def ues_served(client, id):
     print("ues_served")
-    #print(id)
     list_ue_containers=[]
     for container in client.containers.list():
         if 'ue' in container.name:
@@ -69,15 +66,15 @@ def ues_served(client, id):
             if 'oai' in container.name:
                 run = container.exec_run(['sh', '-c', 'echo $RFSIMULATOR'])
                 out=(run.output.decode("utf-8")).split("\n")
-                print(out)
                 ip = get_IPaddress(client,id)
-                print(ip)
                 if ip == out[0]:
-                    print(out[0])
                     list_ue_containers.append(container)
             else:
                 run = container.exec_run(['sh', '-c', 'echo $GNB_HOSTNAME'])
                 out=run.output.decode("utf-8")
+                print(out)
+                print(type(out))
+                print(id.name)
                 if id.name in str(out):
                     list_ue_containers.append(container)
     return list_ue_containers
@@ -115,13 +112,13 @@ def count_NFs(client):
     return counts, no_UEs, no_gNBs, no_UPFs
 
 def display_gNBDetails(client):
-    print("display_gNBDetails")
+    #print("display_gNBDetails")
     List_gNBs=[]
     gNB_details = {}
     for container in client.containers.list():
         gNB_details = {}
         if 'gnb' in container.name:
-            print(container.name)
+            #print(container.name)
             gNB_details["Name_of_gNB"]=container.name
             #no_PDUsessions = 0
             ues = ues_served(client,container.id)
@@ -137,12 +134,12 @@ def display_gNBDetails(client):
 
 
 def display_UEDetails(client):
-    print("display_UEDetails")
+    #print("display_UEDetails")
     List_UEs=[]
     for container in client.containers.list():
         UE_details = {}
         if 'ue' in container.name:
-            print(container.name)
+            #print(container.name)
             UE_details["Name_of_UE"]=container.name
             UE_details["Connected to gNB"] =  get_gNB(client,container.id)   
             UE_details["Management_IP"] = get_IPaddress(client,container.id)
