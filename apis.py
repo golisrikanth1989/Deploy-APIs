@@ -194,26 +194,9 @@ def stop_Scenario(CN,RAN):
 ###############################################################
 @app.route('/deploy_Scenario/<CN>/<RAN>')
 def deploy_Scenario(CN,RAN):
-    #dictionaries for json
-    Data={"CN_data":[], "RAN_data":[]}
-    CN_Data={"Make_of_CN":'',
-    "no_NFs":0,
-    "no_conn_gNBs":0, #No of gNBs connected
-    "State":'',
-    "no_UPFs":0,
-    }
-    RAN_Data={"Make_of_RAN":'',
-    "no_UEs":0,
-    "no_gNBs":0,
-    "gNB_List":[],
-    "UE_List":[],
-    }
-
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
-        CN_Data["Make_of_CN"]=CN
-        RAN_Data["Make_of_RAN"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker'):
@@ -236,22 +219,9 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        state= 'Active'
-        client=docker.from_env()
-        CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
-        CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
-        gnb_List = display_gNBDetails(client)
-        UE_List = display_UEDetails(client)
-        CN_Data["State"]=state
-        RAN_Data["gNB_List"]=gnb_List
-        RAN_Data["UE_List"]=UE_List
-        Data["CN_data"]=CN_Data
-        Data["RAN_data"]=RAN_Data
-        return jsonify(Data),200
+        return jsonify({"response":"Success! Network deployed!"}), 200 
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
-        CN_Data["Make_of_CN"]=CN
-        RAN_Data["Make_of_RAN"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('5-fi-docker-oai'):
@@ -270,17 +240,6 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        state= 'active' 
-        client=docker.from_env()
-        CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
-        CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
-        gnb_List = display_gNBDetails(client)
-        UE_List = display_UEDetails(client)
-        CN_Data["State"]=state
-        RAN_Data["gNB_List"]=gnb_List
-        RAN_Data["UE_List"]=UE_List
-        Data["CN_data"]=CN_Data
-        Data["RAN_data"]=RAN_Data
         return jsonify({"response":"Success! Network deployed!"}), 200 
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
