@@ -362,6 +362,7 @@ def get_Logs(id):
     #dictionaries for json    
     Logs={ "NF_Logs":''
    }
+    client=docker.from_env()
     container=client.containers.list(filters={"id":id})
     if len(container)==0:
         print ("no container running with given id")
