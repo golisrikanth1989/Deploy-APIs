@@ -146,6 +146,13 @@ def display_UEDetails(client):
             List_UEs.append(UE_details)
     return List_UEs 
 
+
+def get_logs(client,id):
+    for container in client.containers.list():
+        if id in str(container.id):
+            logs = container.logs().decode("utf-8")
+            return logs
+
 ###############################################################
 @app.route('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
@@ -347,6 +354,22 @@ def get_UE_details():
     UE_List = display_UEDetails(client)
     UE_Data["UE_List"]=UE_List
     return jsonify(UE_Data),200
+
+
+###########################################################################
+@app.route('/get_Logs/<id>')
+def get_Logs(id):
+    #dictionaries for json    
+    Logs={ "NF_Logs":''
+   }
+    container=client.containers.list(filters={"id":id})
+    if len(container)==0:
+        print ("no container running with given id")
+        return   
+    Logs["NF_Logs"]=get_logs(client,id)
+    return jsonify(Logs),200
+
+
 
 #start flask app
 if __name__=='__main__':
