@@ -322,6 +322,32 @@ def get_RAN_details():
     RAN_Data["UE_List"]=UE_List
     return jsonify(RAN_Data),200
 
+
+###########################################################################
+@app.route('/gNB_details/')
+def get_gNB_details():
+    #dictionaries for json
+    gNB_Data={
+    "gNB_List":[],
+    }
+    client=docker.from_env()  
+    gnb_List = display_gNBDetails(client)
+    gNB_Data["gNB_List"]=gnb_List
+    return jsonify(gNB_Data),200
+
+
+###########################################################################
+@app.route('/UE_details/')
+def get_UE_details():
+    #dictionaries for json
+    UE_Data={
+    "UE_List":[],
+    }
+    client=docker.from_env()
+    UE_List = display_UEDetails(client)
+    UE_Data["UE_List"]=UE_List
+    return jsonify(UE_Data),200
+
 #start flask app
 if __name__=='__main__':
     app.run(host = '0.0.0.0',port=sys.argv[1])
