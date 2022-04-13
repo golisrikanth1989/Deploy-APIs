@@ -337,7 +337,7 @@ def get_CN_details():
     CN_Data["State"]=state
     return jsonify(CN_Data),200
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+###########################################################################
 @app.route('/RAN_details/')
 def get_RAN_details():
     #dictionaries for json
