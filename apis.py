@@ -162,7 +162,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)         
-        return jsonify({"response":"success"}), 200
+        return jsonify({"response":"Success! Network stopped."}), 200
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
         pwd=os.getcwd()
@@ -175,7 +175,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)    
-        return jsonify({"response":"success"}), 200
+        return jsonify({"response":"Success! Network stopped."}), 200
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
         pwd=os.getcwd()
@@ -188,9 +188,10 @@ def stop_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        return jsonify({"response":"success"}), 200 
+        return jsonify({"response":"Success! Network stopped."}), 200 
 
 
+###############################################################
 @app.route('/deploy_Scenario/<CN>/<RAN>')
 def deploy_Scenario(CN,RAN):
     #dictionaries for json
@@ -280,11 +281,9 @@ def deploy_Scenario(CN,RAN):
         RAN_Data["UE_List"]=UE_List
         Data["CN_data"]=CN_Data
         Data["RAN_data"]=RAN_Data
-        return jsonify(Data),200
+        return jsonify({"response":"Success! Network deployed!"}), 200 
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
-        CN_Data["Make_of_CN"]=CN
-        RAN_Data["Make_of_RAN"]=RAN
         os.chdir('../')
         #check if directory already exists
         if os.path.isdir('openairinterface-5g'):
@@ -312,21 +311,57 @@ def deploy_Scenario(CN,RAN):
         os.chdir('../../../..')      
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
-        print(pwd) 
-        state= 'active'
-        client=docker.from_env()
-        CN_Data["no_NFs"], RAN_Data["no_UEs"], RAN_Data["no_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
-        CN_Data["no_conn_gNBs"]=RAN_Data["no_gNBs"]
-        gnb_List = display_gNBDetails(client)
-        UE_List = display_UEDetails(client)
-        CN_Data["State"]=state
-        RAN_Data["gNB_List"]=gnb_List
-        RAN_Data["UE_List"]=UE_List
-        Data["CN_data"]=CN_Data
-        Data["RAN_data"]=RAN_Data
-        return jsonify(Data),200
+        print(pwd)
+        return jsonify({"response":"Success! Network deployed!"}), 200 
 
 
+###############################################################
+@app.route('/CN_details/')
+def get_CN_details():
+    #dictionaries for json
+    CN_Data={"Make_of_CN":'',
+    "no_NFs":0,
+    "no_conn_gNBs":0, #No of gNBs connected
+    "State":'',
+    "no_UPFs":0,
+    }
+    state= 'active'
+    client=docker.from_env()
+    for container in client.containers.list():
+        if 'free5gc' in container.name:
+            CN = 'free5gc'
+        elif 'spgw' in container.name:
+            CN = 'OAI'              
+    CN_Data["Make_of_CN"]=CN
+    CN_Data["no_NFs"], x, CN_Data["no_conn_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
+    CN_Data["State"]=state
+    return jsonify(CN_Data),200
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+@app.route('/RAN_details/')
+def get_RAN_details():
+    #dictionaries for json
+    RAN_Data={"Make_of_RAN":'',
+    "no_UEs":0,
+    "no_gNBs":0,
+    "gNB_List":[],
+    "UE_List":[],
+    }
+    state= 'active'
+    client=docker.from_env()
+    for container in client.containers.list():
+        if 'gnb' in container.name:
+            if 'oai' in container.name:
+                RAN = 'OAI'
+            else:
+                RAN = 'UERANSIM'   
+    RAN_Data["Make_of_RAN"]=RAN
+    x, RAN_Data["no_UEs"], RAN_Data["no_gNBs"], y=count_NFs(client)
+    gnb_List = display_gNBDetails(client)
+    UE_List = display_UEDetails(client)
+    RAN_Data["gNB_List"]=gnb_List
+    RAN_Data["UE_List"]=UE_List
+    return jsonify(RAN_Data),200
 
 #start flask app
 if __name__=='__main__':
