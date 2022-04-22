@@ -1,5 +1,4 @@
 import docker
-from flask import Flask, request, jsonify
 from fastapi import FastAPI
 import uvicorn
 import sys, os
@@ -172,7 +171,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)         
-        return jsonify({"response":"Success! Network stopped."}), 200
+        return {"response":"Success! Network stopped."}
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
         pwd=os.getcwd()
@@ -185,7 +184,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)    
-        return jsonify({"response":"Success! Network stopped."}), 200
+        return {"response":"Success! Network stopped."}
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
         pwd=os.getcwd()
@@ -198,7 +197,7 @@ def stop_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        return jsonify({"response":"Success! Network stopped."}), 200 
+        return {"response":"Success! Network stopped."}
 
 
 ###############################################################
@@ -229,7 +228,7 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        return jsonify({"response":"Success! Network deployed!"}), 200 
+        return {"response":"Success! Network deployed!"}
     elif CN == 'free5gc' and RAN == 'OAI':
         print("free5gc CN and OAI RAN")
         os.chdir('../')
@@ -250,7 +249,7 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        return jsonify({"response":"Success! Network deployed!"}), 200 
+        return {"response":"Success! Network deployed!"}
     elif CN == 'OAI' and RAN == 'OAI':
         print("OAI CN and OAI RAN")
         os.chdir('../')
@@ -281,7 +280,7 @@ def deploy_Scenario(CN,RAN):
         os.chdir('Deploy-APIs')
         pwd=os.getcwd()
         print(pwd)
-        return jsonify({"response":"Success! Network deployed!"}), 200 
+        return {"response":"Success! Network deployed!"} 
 
 
 ###############################################################
@@ -305,8 +304,7 @@ def get_CN_details():
     CN_Data["Make_of_CN"]=CN
     CN_Data["no_NFs"], x, CN_Data["no_conn_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
     CN_Data["State"]=state
-    return jsonify(CN_Data),200
-    #return jsonify({"response":"Success! Network deployed!"}), 200 
+    return (CN_Data)
 
 ###########################################################################
 #@app.route('/RAN_details/')
@@ -332,7 +330,7 @@ def get_RAN_details():
     UE_List = display_UEDetails(client)
     RAN_Data["gNB_List"]=gnb_List
     RAN_Data["UE_List"]=UE_List
-    return jsonify(RAN_Data),200
+    return RAN_Data
 
 
 ###########################################################################
@@ -345,7 +343,7 @@ def get_gNB_details():
     client=docker.from_env()  
     gnb_List = display_gNBDetails(client)
     gNB_Data["gNB_List"]=gnb_List
-    return jsonify(gNB_Data),200
+    return gNB_Data
 
 
 ###########################################################################
@@ -358,7 +356,7 @@ def get_UE_details():
     client=docker.from_env()
     UE_List = display_UEDetails(client)
     UE_Data["UE_List"]=UE_List
-    return jsonify(UE_Data),200
+    return UE_Data
 
 
 ###########################################################################
@@ -373,7 +371,7 @@ def get_Logs(id):
         print ("no container running with given id")
         return   
     Logs["NF_Logs"]=get_logs(client,id)
-    return jsonify(Logs),200
+    return Logs
 
 
 
