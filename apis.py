@@ -4,7 +4,6 @@ import uvicorn
 import sys, os
 import time
 
-#app= Flask(__name__)
 app = FastAPI()
 
 def num_PDUsessions(client,id):
@@ -156,7 +155,7 @@ def get_logs(client,id):
             return logs
 
 ###############################################################
-#@app.route('/stop_Scenario/<CN>/<RAN>')
+@app.get('/stop_Scenario/<CN>/<RAN>')
 def stop_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -201,7 +200,7 @@ def stop_Scenario(CN,RAN):
 
 
 ###############################################################
-#@app.route('/deploy_Scenario/<CN>/<RAN>')
+@app.get('/deploy_Scenario/<CN>/<RAN>')
 def deploy_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -285,7 +284,6 @@ def deploy_Scenario(CN,RAN):
 
 ###############################################################
 @app.get("/CN_details/")
-#@app.route('/CN_details/')
 def get_CN_details():
     #dictionaries for json
     CN_Data={"Make_of_CN":'',
@@ -307,7 +305,7 @@ def get_CN_details():
     return (CN_Data)
 
 ###########################################################################
-#@app.route('/RAN_details/')
+@app.get('/RAN_details/')
 def get_RAN_details():
     #dictionaries for json
     RAN_Data={"Make_of_RAN":'',
@@ -334,7 +332,7 @@ def get_RAN_details():
 
 
 ###########################################################################
-#@app.route('/gNB_details/')
+@app.get('/gNB_details/')
 def get_gNB_details():
     #dictionaries for json
     gNB_Data={
@@ -347,7 +345,7 @@ def get_gNB_details():
 
 
 ###########################################################################
-#@app.route('/UE_details/')
+@app.get('/UE_details/')
 def get_UE_details():
     #dictionaries for json
     UE_Data={
@@ -360,7 +358,7 @@ def get_UE_details():
 
 
 ###########################################################################
-#@app.route('/get_Logs/<id>')
+@app.get('/get_Logs/<id>')
 def get_Logs(id):
     #dictionaries for json    
     Logs={ "NF_Logs":''
@@ -373,11 +371,6 @@ def get_Logs(id):
     Logs["NF_Logs"]=get_logs(client,id)
     return Logs
 
-
-
-#start flask app
-#if __name__=='__main__':
-#    app.run(host = '0.0.0.0',port=sys.argv[1])
 
 uvicorn.run(app)
 
