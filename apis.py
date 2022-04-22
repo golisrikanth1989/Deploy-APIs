@@ -1,6 +1,7 @@
 import docker
 from flask import Flask, request, jsonify
 from fastapi import FastAPI
+import uvicorn
 import sys, os
 import time
 
@@ -380,7 +381,7 @@ def get_Logs(id):
 #if __name__=='__main__':
 #    app.run(host = '0.0.0.0',port=sys.argv[1])
 
-#uvicorn apis:app --reload
+uvicorn.run(app)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
