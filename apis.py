@@ -301,7 +301,7 @@ def get_CN_details():
     CN_Data["Make_of_CN"]=CN
     CN_Data["no_NFs"], x, CN_Data["no_conn_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
     CN_Data["State"]=state
-    return jsonify(CN_Data),200
+    return jsonify(CN_Data)
 
 ###########################################################################
 @app.route('/RAN_details/')
