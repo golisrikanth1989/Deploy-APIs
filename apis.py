@@ -373,7 +373,7 @@ def get_Logs(id):
 
 
 #uvicorn.run(app)
-uvicorn.run(app, host=0.0.0.0, port=8000, log_level="debug", debug=True)
+uvicorn.run(app, host = "0.0.0.0", port = "8000", log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
