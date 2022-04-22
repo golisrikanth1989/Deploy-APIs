@@ -380,7 +380,7 @@ def get_Logs(id):
 #if __name__=='__main__':
 #    app.run(host = '0.0.0.0',port=sys.argv[1])
 
-uvicorn main:app --reload
+#uvicorn apis:app --reload
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
