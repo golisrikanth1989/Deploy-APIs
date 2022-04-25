@@ -305,7 +305,7 @@ def stop_Scenario(CN,RAN):
 
         
 ###############################################################
-@app.get("/CN_details/")
+@app.get("/CN_details/", tags=["Get Details"])
 def get_CN_details():
     #dictionaries for json
     CN_Data={"Make_of_CN":'',
@@ -327,7 +327,7 @@ def get_CN_details():
     return (CN_Data)
 
 ###########################################################################
-@app.get('/RAN_details/')
+@app.get('/RAN_details/', tags=["Get Details"])
 def get_RAN_details():
     #dictionaries for json
     RAN_Data={"Make_of_RAN":'',
@@ -354,7 +354,7 @@ def get_RAN_details():
 
 
 ###########################################################################
-@app.get('/gNB_details/')
+@app.get('/gNB_details/', tags=["Get Details"])
 def get_gNB_details():
     #dictionaries for json
     gNB_Data={
@@ -367,7 +367,7 @@ def get_gNB_details():
 
 
 ###########################################################################
-@app.get('/UE_details/')
+@app.get('/UE_details/', tags=["Get Details"])
 def get_UE_details():
     #dictionaries for json
     UE_Data={
@@ -380,7 +380,7 @@ def get_UE_details():
 
 
 ###########################################################################
-@app.get('/get_Logs/<id>')
+@app.get('/get_Logs/<id>', tags=["Get Details"])
 def get_Logs(id):
     #dictionaries for json    
     Logs={ "NF_Logs":''
