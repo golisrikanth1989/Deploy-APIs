@@ -4,7 +4,22 @@ import uvicorn
 import sys, os
 import time
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "Scenario",
+        "description": "CN can take values free5gc and OAI. RAN can take values UERANSIM and OAI.",
+    },
+]
+
+app = FastAPI(
+    title="5-fi APIs",
+    description="APIs for 5-fi Console",
+    version="1.0.0",
+    contact={
+        "url": "http://5-fi.net/",
+        "email": "5-fi@dolcera.com",
+    },
+)
 
 def num_PDUsessions(client,id):
     for container in client.containers.list():
@@ -154,53 +169,9 @@ def get_logs(client,id):
             logs = container.logs().decode("utf-8")
             return logs
 
-###############################################################
-@app.get('/stop_Scenario/<CN>/<RAN>')
-def stop_Scenario(CN,RAN):
-    # select scenario of CN and RAN and then deploy the scenario
-    if CN == 'free5gc' and RAN == 'UERANSIM':
-        print("free5gc CN and UERANSIM RAN")
-        pwd=os.getcwd()
-        print(pwd)
-        os.chdir('../')
-        os.chdir('5-fi-docker')
-        os.chdir('free5gc-compose')
-        os.system('docker-compose down')
-        os.chdir('../..')
-        os.chdir('Deploy-APIs')
-        pwd=os.getcwd()
-        print(pwd)         
-        return {"response":"Success! Network stopped."}
-    elif CN == 'free5gc' and RAN == 'OAI':
-        print("free5gc CN and OAI RAN")
-        pwd=os.getcwd()
-        print(pwd)
-        os.chdir('../')
-        os.chdir('5-fi-docker-oai')
-        os.chdir('free5gc-compose')
-        os.system('docker-compose down')
-        os.chdir('../..')
-        os.chdir('Deploy-APIs')
-        pwd=os.getcwd()
-        print(pwd)    
-        return {"response":"Success! Network stopped."}
-    elif CN == 'OAI' and RAN == 'OAI':
-        print("OAI CN and OAI RAN")
-        pwd=os.getcwd()
-        print(pwd)
-        os.chdir('../')
-        os.chdir('openairinterface-5g')
-        os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
-        os.system('docker-compose down')
-        os.chdir('../../../..')
-        os.chdir('Deploy-APIs')
-        pwd=os.getcwd()
-        print(pwd)
-        return {"response":"Success! Network stopped."}
-
 
 ###############################################################
-@app.get('/deploy_Scenario/<CN>/<RAN>')
+@app.get('/deploy_Scenario/<CN>/<RAN>', tags=["Scenario"])
 def deploy_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -282,6 +253,51 @@ def deploy_Scenario(CN,RAN):
         return {"response":"Success! Network deployed!"} 
 
 
+###############################################################
+@app.get('/stop_Scenario/<CN>/<RAN>')
+def stop_Scenario(CN,RAN):
+    # select scenario of CN and RAN and then deploy the scenario
+    if CN == 'free5gc' and RAN == 'UERANSIM':
+        print("free5gc CN and UERANSIM RAN")
+        pwd=os.getcwd()
+        print(pwd)
+        os.chdir('../')
+        os.chdir('5-fi-docker')
+        os.chdir('free5gc-compose')
+        os.system('docker-compose down')
+        os.chdir('../..')
+        os.chdir('Deploy-APIs')
+        pwd=os.getcwd()
+        print(pwd)         
+        return {"response":"Success! Network stopped."}
+    elif CN == 'free5gc' and RAN == 'OAI':
+        print("free5gc CN and OAI RAN")
+        pwd=os.getcwd()
+        print(pwd)
+        os.chdir('../')
+        os.chdir('5-fi-docker-oai')
+        os.chdir('free5gc-compose')
+        os.system('docker-compose down')
+        os.chdir('../..')
+        os.chdir('Deploy-APIs')
+        pwd=os.getcwd()
+        print(pwd)    
+        return {"response":"Success! Network stopped."}
+    elif CN == 'OAI' and RAN == 'OAI':
+        print("OAI CN and OAI RAN")
+        pwd=os.getcwd()
+        print(pwd)
+        os.chdir('../')
+        os.chdir('openairinterface-5g')
+        os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
+        os.system('docker-compose down')
+        os.chdir('../../../..')
+        os.chdir('Deploy-APIs')
+        pwd=os.getcwd()
+        print(pwd)
+        return {"response":"Success! Network stopped."}
+
+        
 ###############################################################
 @app.get("/CN_details/")
 def get_CN_details():
