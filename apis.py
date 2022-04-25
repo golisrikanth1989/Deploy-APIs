@@ -7,8 +7,12 @@ import time
 tags_metadata = [
     {
         "name": "Scenario",
-        "description": "CN can take values free5gc and OAI. RAN can take values UERANSIM and OAI.",
+        "description": "CN coptions: free5gc and OAI. RAN options: UERANSIM and OAI.",
     },
+    {
+        "name": "Get Details",
+        "description": "Get information about the different components of the network.",
+    },    
 ]
 
 app = FastAPI(
@@ -16,6 +20,7 @@ app = FastAPI(
     description="APIs for 5-fi Console",
     version="1.0.0",
     contact={
+        "name": "5-fi",
         "url": "http://5-fi.net/",
         "email": "5-fi@dolcera.com",
     },
