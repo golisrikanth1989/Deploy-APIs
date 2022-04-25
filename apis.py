@@ -19,6 +19,7 @@ app = FastAPI(
         "url": "http://5-fi.net/",
         "email": "5-fi@dolcera.com",
     },
+    openapi_tags=tags_metadata,
 )
 
 def num_PDUsessions(client,id):
@@ -254,7 +255,7 @@ def deploy_Scenario(CN,RAN):
 
 
 ###############################################################
-@app.get('/stop_Scenario/<CN>/<RAN>')
+@app.get('/stop_Scenario/<CN>/<RAN>', tags=["Scenario"])
 def stop_Scenario(CN,RAN):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
