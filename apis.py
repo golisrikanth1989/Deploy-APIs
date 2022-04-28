@@ -6,11 +6,11 @@ import time
 
 tags_metadata = [
     {
-        "name": "Scenario",
-        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are free5gc and OAI and RAN options available are UERANSIM and OAI.",
+        "name": "Deploy or Stop a Network",
+        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are free5gc, OAI and RAN options available are UERANSIM, OAI.",
     },
     {
-        "name": "Get Details",
+        "name": "Get details",
         "description": "Get information about the different components of the network.",
     },    
 ]
@@ -177,7 +177,7 @@ def get_logs(client,id):
 
 
 ###############################################################
-@app.get("/deploy_Scenario/{CN}/{RAN}", tags=["Scenario"])
+@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Scenario"])
 def deploy_Scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -260,8 +260,8 @@ def deploy_Scenario(CN: str,RAN: str):
 
 
 ###############################################################
-@app.get('/stop_Scenario/<CN>/<RAN>', tags=["Scenario"])
-def stop_Scenario(CN,RAN):
+@app.get('/stop_scenario/{CN}/{RAN}', tags=["Scenario"])
+def stop_scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
@@ -305,14 +305,14 @@ def stop_Scenario(CN,RAN):
 
         
 ###############################################################
-@app.get("/CN_details/", tags=["Get Details"])
+@app.get("/cn_details/", tags=["Get details"])
 def get_CN_details():
     #dictionaries for json
-    CN_Data={"Make_of_CN":'',
-    "no_NFs":0,
-    "no_conn_gNBs":0, #No of gNBs connected
-    "State":'',
-    "no_UPFs":0,
+    CN_Data={"make_of_cn":'',
+    "no_nfs":0,
+    "no_connected_gnbs":0, #No of gNBs connected
+    "state":'',
+    "no_upfs":0,
     }
     state= 'active'
     client=docker.from_env()
@@ -321,20 +321,20 @@ def get_CN_details():
             CN = 'free5gc'
         elif 'spgw' in container.name:
             CN = 'OAI'              
-    CN_Data["Make_of_CN"]=CN
-    CN_Data["no_NFs"], x, CN_Data["no_conn_gNBs"], CN_Data["no_UPFs"]=count_NFs(client)
-    CN_Data["State"]=state
+    CN_Data["make_of_cn"]=CN
+    CN_Data["no_nfs"], x, CN_Data["no_connected_gnbs"], CN_Data["no_upfs"]=count_NFs(client)
+    CN_Data["state"]=state
     return (CN_Data)
 
 ###########################################################################
-@app.get('/RAN_details/', tags=["Get Details"])
+@app.get('/ran_details/', tags=["Get details"])
 def get_RAN_details():
     #dictionaries for json
-    RAN_Data={"Make_of_RAN":'',
-    "no_UEs":0,
-    "no_gNBs":0,
-    "gNB_List":[],
-    "UE_List":[],
+    RAN_Data={"make_of_ran":'',
+    "no_ues":0,
+    "no_gnbs":0,
+    "gnb_list":[],
+    "ue_list":[],
     }
     state= 'active'
     client=docker.from_env()
@@ -344,53 +344,53 @@ def get_RAN_details():
                 RAN = 'OAI'
             else:
                 RAN = 'UERANSIM'   
-    RAN_Data["Make_of_RAN"]=RAN
-    x, RAN_Data["no_UEs"], RAN_Data["no_gNBs"], y=count_NFs(client)
+    RAN_Data["make_of_ran"]=RAN
+    x, RAN_Data["no_ues"], RAN_Data["no_gnbs"], y=count_NFs(client)
     gnb_List = display_gNBDetails(client)
     UE_List = display_UEDetails(client)
-    RAN_Data["gNB_List"]=gnb_List
-    RAN_Data["UE_List"]=UE_List
+    RAN_Data["gnb_List"]=gnb_List
+    RAN_Data["ue_List"]=UE_List
     return RAN_Data
 
 
 ###########################################################################
-@app.get('/gNB_details/', tags=["Get Details"])
+@app.get('/gnb_details/', tags=["Get details"])
 def get_gNB_details():
     #dictionaries for json
     gNB_Data={
-    "gNB_List":[],
+    "gnb_list":[],
     }
     client=docker.from_env()  
     gnb_List = display_gNBDetails(client)
-    gNB_Data["gNB_List"]=gnb_List
+    gNB_Data["gnb_list"]=gnb_List
     return gNB_Data
 
 
 ###########################################################################
-@app.get('/UE_details/', tags=["Get Details"])
+@app.get('/ue_details/', tags=["Get details"])
 def get_UE_details():
     #dictionaries for json
     UE_Data={
-    "UE_List":[],
+    "ue_list":[],
     }
     client=docker.from_env()
     UE_List = display_UEDetails(client)
-    UE_Data["UE_List"]=UE_List
+    UE_Data["ue_list"]=UE_List
     return UE_Data
 
 
 ###########################################################################
-@app.get('/get_Logs/<id>', tags=["Get Details"])
+@app.get('/get_logs/<id>', tags=["Get details"])
 def get_Logs(id):
     #dictionaries for json    
-    Logs={ "NF_Logs":''
+    Logs={ "nf_logs":''
    }
     client=docker.from_env()
     container=client.containers.list(filters={"id":id})
     if len(container)==0:
         print ("no container running with given id")
         return   
-    Logs["NF_Logs"]=get_logs(client,id)
+    Logs["nf_logs"]=get_logs(client,id)
     return Logs
 
 
