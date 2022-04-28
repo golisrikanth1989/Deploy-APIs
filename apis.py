@@ -177,7 +177,7 @@ def get_logs(client,id):
 
 
 ###############################################################
-@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Scenario"])
+@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy or Stop a Network"])
 def deploy_Scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -260,7 +260,7 @@ def deploy_Scenario(CN: str,RAN: str):
 
 
 ###############################################################
-@app.get('/stop_scenario/{CN}/{RAN}', tags=["Scenario"])
+@app.get('/stop_scenario/{CN}/{RAN}', tags=["Deploy or Stop a Network"])
 def stop_scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
