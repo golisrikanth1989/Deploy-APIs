@@ -178,7 +178,7 @@ def get_logs(client,id):
 
 ###############################################################
 @app.get("/deploy_Scenario/{CN}/{RAN}", tags=["Scenario"])
-def deploy_Scenario(CN str,RAN str):
+def deploy_Scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
