@@ -7,7 +7,7 @@ import time
 tags_metadata = [
     {
         "name": "Scenario",
-        "description": "CN coptions: free5gc and OAI. RAN options: UERANSIM and OAI.",
+        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are free5gc and OAI and RAN options available are UERANSIM and OAI.",
     },
     {
         "name": "Get Details",
