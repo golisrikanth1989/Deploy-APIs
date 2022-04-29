@@ -8,13 +8,33 @@ import time
 
 tags_metadata = [
     {
-        "name": "Deploy or Stop a Network",
-        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are free5gc, OAI and RAN options available are UERANSIM, OAI.",
+        "name": "Deploy a Network",
+        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are "free5gc", "OAI" and RAN options available are "UERANSIM", "OAI".",
     },
     {
-        "name": "Get details",
-        "description": "Get information about the different components of the network.",
+        "name": "Stop a Network",
+        "description": "Stop the network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are free5gc, OAI and RAN options available are UERANSIM, OAI.",
+    },
+    {
+        "name": "Get CN details",
+        "description": "Get information about the Core Network (CN) of the deployed network.",
     },    
+    {
+        "name": "Get RAN details",
+        "description": "Get information about the Radio Access Network (RAN) of the deployed network.",
+    },    
+    {
+        "name": "Get gNB details",
+        "description": "Get information about the gNBs deployed in the network.",
+    },   
+    {
+        "name": "Get UE details",
+        "description": "Get information about the UEs in the network.",
+    },
+    {
+        "name": "Get logs",
+        "description": "Get logs of the container with containerid mentioned.",
+    },             
 ]
 
 app = FastAPI(
@@ -186,7 +206,7 @@ def validation_exception_handler(request, exc):
 
 
 ###############################################################
-@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy or Stop a Network"])
+@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy a Network"])
 def deploy_Scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -271,7 +291,7 @@ def deploy_Scenario(CN: str,RAN: str):
 
 
 ###############################################################
-@app.get('/stop_scenario/{CN}/{RAN}', tags=["Deploy or Stop a Network"])
+@app.get('/stop_scenario/{CN}/{RAN}', tags=["Stop a Network"])
 def stop_scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
@@ -316,7 +336,7 @@ def stop_scenario(CN: str,RAN: str):
 
         
 ###############################################################
-@app.get("/cn_details/", tags=["Get details"])
+@app.get("/cn_details/", tags=["Get CN details"])
 def get_CN_details():
     #dictionaries for json
     CN_Data={"make_of_cn":'',
@@ -341,7 +361,7 @@ def get_CN_details():
     return (CN_Data)
 
 ###########################################################################
-@app.get('/ran_details/', tags=["Get details"])
+@app.get('/ran_details/', tags=["Get RAN details"])
 def get_RAN_details():
     #dictionaries for json
     RAN_Data={"make_of_ran":'',
@@ -368,7 +388,7 @@ def get_RAN_details():
 
 
 ###########################################################################
-@app.get('/gnb_details/', tags=["Get details"])
+@app.get('/gnb_details/', tags=["Get gNB details"])
 def get_gNB_details():
     #dictionaries for json
     gNB_Data={
@@ -381,7 +401,7 @@ def get_gNB_details():
 
 
 ###########################################################################
-@app.get('/ue_details/', tags=["Get details"])
+@app.get('/ue_details/', tags=["Get UE details"])
 def get_UE_details():
     #dictionaries for json
     UE_Data={
@@ -394,7 +414,7 @@ def get_UE_details():
 
 
 ###########################################################################
-@app.get('/get_logs/<id>', tags=["Get details"])
+@app.get('/get_logs/<id>', tags=["Get logs"])
 def get_Logs(id):
     #dictionaries for json    
     Logs={ "nf_logs":''
