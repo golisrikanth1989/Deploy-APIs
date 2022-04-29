@@ -230,7 +230,7 @@ def get_logs(client,id):
     responses={
         404: {
             "model": Message, 
-            "description": "The requested resource was not found"},
+            "description": "The requested resource was not found",
             #  "content": {
             #     "application/json": {
             #         "example": {"response":"The requested resource was not found"}
