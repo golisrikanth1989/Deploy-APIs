@@ -9,7 +9,7 @@ import time
 tags_metadata = [
     {
         "name": "Deploy a Network",
-        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are "free5gc", "OAI" and RAN options available are "UERANSIM", "OAI".",
+        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are \"free5gc\", \"OAI\" and RAN options available are \"UERANSIM\", \"OAI\".",
     },
     {
         "name": "Stop a Network",
