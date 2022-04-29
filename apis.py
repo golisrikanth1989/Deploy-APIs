@@ -593,6 +593,8 @@ def get_UE_details():
     }
     client=docker.from_env()
     UE_List = display_UEDetails(client)
+    if UE_List==[]:
+        raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")
     UE_Data["ue_list"]=UE_List
     return UE_Data
 
@@ -636,6 +638,7 @@ def get_Logs(id):
     container=client.containers.list(filters={"id":id})
     if len(container)==0:
         print ("no container running with given id")
+        raise HTTPException(status_code=404, detail="There is no container running with the given id.")
         return   
     Logs["nf_logs"]=get_logs(client,id)
     return Logs
