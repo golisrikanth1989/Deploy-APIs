@@ -509,12 +509,15 @@ def get_RAN_details():
     }
     state= 'active'
     client=docker.from_env()
+    CN=''
     for container in client.containers.list():
         if 'gnb' in container.name:
             if 'oai' in container.name:
                 RAN = 'OAI'
             else:
-                RAN = 'UERANSIM'   
+                RAN = 'UERANSIM'  
+    if RAN=='':
+        raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                                  
     RAN_Data["make_of_ran"]=RAN
     x, RAN_Data["no_ues"], RAN_Data["no_gnbs"], y=count_NFs(client)
     gnb_List = display_gNBDetails(client)
@@ -554,6 +557,8 @@ def get_gNB_details():
     }
     client=docker.from_env()  
     gnb_List = display_gNBDetails(client)
+    if gnb_List==[]:
+        raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                                   
     gNB_Data["gnb_list"]=gnb_List
     return gNB_Data
 
