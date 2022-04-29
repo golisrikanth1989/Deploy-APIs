@@ -232,10 +232,10 @@ def get_logs(client,id):
 #    print(f"OMG! The client sent invalid data!: {exc}")
 #    return await request_validation_exception_handler(request, exc)
 
-@app.get("/models/{model_name}")
-async def get_model(model_name: ModelName):
-     print('get_model')
-     print(model_name)
+# @app.get("/models/{model_name}")
+# async def get_model(model_name: ModelName):
+#      print('get_model')
+#      print(model_name)
 ###############################################################
 @app.get(
     "/deploy_scenario/{CN}/{RAN}", 
