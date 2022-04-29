@@ -1,5 +1,7 @@
 import docker
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
 import uvicorn
 import sys, os
 import time
@@ -258,6 +260,12 @@ def deploy_Scenario(CN: str,RAN: str):
         print(pwd)
         return {"response":"Success! Network deployed!"} 
 
+
+###############################################################
+# Exception Handler
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=400)
 
 ###############################################################
 @app.get('/stop_scenario/{CN}/{RAN}', tags=["Deploy or Stop a Network"])
