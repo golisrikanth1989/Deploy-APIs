@@ -228,7 +228,7 @@ def get_logs(client,id):
     "/deploy_scenario/{CN}/{RAN}", 
     tags=["Deploy a Network"], 
     responses={
-        404: {"model": Message, "description": "The item was not found"},
+        404: {"model": Message, "description": "The response was not found"},
         200: {
             "description": "Successful response.",
             "content": {
