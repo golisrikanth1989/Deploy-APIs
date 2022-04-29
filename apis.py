@@ -509,7 +509,7 @@ def get_RAN_details():
     }
     state= 'active'
     client=docker.from_env()
-    CN=''
+    RAN=''
     for container in client.containers.list():
         if 'gnb' in container.name:
             if 'oai' in container.name:
