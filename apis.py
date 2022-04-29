@@ -32,11 +32,11 @@ class RAN_options(str, Enum):
 tags_metadata = [
     {
         "name": "Deploy a Network",
-        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. CN parameter can take values: \"free5gc\", \"OAI\"; RAN parameter can take values: \"UERANSIM\", \"OAI\".",
+        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice.",
     },
     {
         "name": "Stop a Network",
-        "description": "Stop the network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. Currently, CN options available are free5gc, OAI and RAN options available are UERANSIM, OAI.",
+        "description": "Stop the network with Core Network (CN) and Radio Access Network (RAN) stack of your choice.",
     },
     {
         "name": "Get CN details",
@@ -357,7 +357,7 @@ def deploy_Scenario(CN: CN_options,RAN: RAN_options):
 
 ###############################################################
 @app.get('/stop_scenario/{CN}/{RAN}', tags=["Stop a Network"])
-def stop_scenario(CN: str,RAN: str):
+def stop_scenario(CN: CN_options,RAN: RAN_options):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
         print("free5gc CN and UERANSIM RAN")
