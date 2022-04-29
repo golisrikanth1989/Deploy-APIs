@@ -216,7 +216,10 @@ async def validation_exception_handler(request, exc):
     return await request_validation_exception_handler(request, exc)
 
 ###############################################################
-@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy a Network"])
+@app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy a Network"], responses={
+        200: {"response":"Success! Network deployed!"}
+        
+    },)
 def deploy_Scenario(CN: str,RAN: str):
     #try:
     # select scenario of CN and RAN and then deploy the scenario
