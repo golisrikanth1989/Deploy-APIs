@@ -16,8 +16,8 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title="5-fi APIs",
-    description="APIs for 5-fi Console",
+    title="5-Fi APIs",
+    description="APIs for 5-Fi Console",
     version="1.0.0",
     contact={
         "name": "5-fi",
