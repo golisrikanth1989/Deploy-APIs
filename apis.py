@@ -11,6 +11,16 @@ from fastapi.responses import PlainTextResponse
 import uvicorn
 import sys, os
 import time
+from pydantic import BaseModel
+
+
+class Item(BaseModel):
+    id: str
+    value: str
+
+
+class Message(BaseModel):
+    message: str
 
 tags_metadata = [
     {
