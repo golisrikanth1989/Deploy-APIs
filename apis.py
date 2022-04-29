@@ -447,7 +447,7 @@ def stop_scenario(CN: CN_options,RAN: RAN_options):
             "description": "Successful response.",
             "content": {
                 "application/json": {
-                    "example": {"response":"Success! Network deployed!"}
+                    "example": {"response":"Success!"}
                 }
             },
         },
@@ -493,7 +493,7 @@ def get_CN_details():
             "description": "Successful response.",
             "content": {
                 "application/json": {
-                    "example": {"response":"Success! Network deployed!"}
+                    "example": {"response":"Success!"}
                 }
             },
         },
@@ -541,7 +541,7 @@ def get_RAN_details():
             "description": "Successful response.",
             "content": {
                 "application/json": {
-                    "example": {"response":"Success! Network deployed!"}
+                    "example": {"response":"Success!"}
                 }
             },
         },
@@ -575,7 +575,7 @@ def get_gNB_details():
             "description": "Successful response.",
             "content": {
                 "application/json": {
-                    "example": {"response":"Success! Network deployed!"}
+                    "example": {"response":"Success!"}
                 }
             },
         },
@@ -609,7 +609,7 @@ def get_UE_details():
             "description": "Successful response.",
             "content": {
                 "application/json": {
-                    "example": {"response":"Success! Network deployed!"}
+                    "example": {"response":"Success!"}
                 }
             },
         },
