@@ -21,10 +21,13 @@ class Item(BaseModel):
 class Message(BaseModel):
     message: str
 
-class ModelName(str, Enum):
-    alexnet = "alexnet"
-    resnet = "resnet"
-    lenet = "lenet"
+class CN_options(str, Enum):
+    free5gc = "free5gc"
+    OAI = "OAI"
+
+class RAN_options(str, Enum):
+    UERANSIM = "UERANSIM"
+    OAI = "OAI"
 
 tags_metadata = [
     {
@@ -265,7 +268,7 @@ async def get_model(model_name: ModelName):
     },
 )
 
-def deploy_Scenario(CN: str,RAN: str):
+def deploy_Scenario(CN: CN_options,RAN: RAN_options):
     #try:
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
