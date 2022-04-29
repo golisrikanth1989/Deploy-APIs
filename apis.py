@@ -236,6 +236,7 @@ def get_logs(client,id):
                     "example": {"response":"The requested resource was not found"}
                 }
             },
+        },    
         200: {
             "description": "Successful response.",
             "content": {
