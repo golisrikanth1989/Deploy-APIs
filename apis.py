@@ -229,7 +229,7 @@ def get_logs(client,id):
     tags=["Deploy a Network"], 
     responses={
         404: {
-            "model": Message, 
+            #"model": Message, 
             "description": "The requested resource was not found"},
              "content": {
                 "application/json": {
@@ -244,14 +244,14 @@ def get_logs(client,id):
                 }
             },
         },
-        422: {
-            "description": "Validation error",
-            "content": {
-                "application/json": {
-                    "example": {"response":"Invalid parameters! Please use valid parameters."}
-                }
-            },
-        },        
+        # 422: {
+        #     "description": "Validation error",
+        #     "content": {
+        #         "application/json": {
+        #             "example": {"response":"Invalid parameters! Please use valid parameters."}
+        #         }
+        #     },
+        # },        
     },
 )
 def deploy_Scenario(CN: str,RAN: str):
