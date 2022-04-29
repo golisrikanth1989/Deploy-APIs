@@ -1,5 +1,5 @@
 import docker
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import uvicorn
 import sys, os
 import time
@@ -316,11 +316,14 @@ def get_CN_details():
     }
     state= 'active'
     client=docker.from_env()
+    CN = ''
     for container in client.containers.list():
         if 'free5gc' in container.name:
             CN = 'free5gc'
         elif 'spgw' in container.name:
-            CN = 'OAI'              
+            CN = 'OAI' 
+    if CN == ''
+        raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
     CN_Data["make_of_cn"]=CN
     CN_Data["no_nfs"], x, CN_Data["no_connected_gnbs"], CN_Data["no_upfs"]=count_NFs(client)
     CN_Data["state"]=state
