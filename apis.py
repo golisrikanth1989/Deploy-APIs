@@ -431,7 +431,28 @@ def stop_scenario(CN: CN_options,RAN: RAN_options):
 
         
 ###############################################################
-@app.get("/cn_details/", tags=["Get CN details"])
+@app.get(
+    "/cn_details/", 
+    tags=["Get CN details"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success! Network deployed!"}
+                }
+            },
+        },
+    },
+)
 def get_CN_details():
     #dictionaries for json
     CN_Data={"make_of_cn":'',
@@ -456,7 +477,28 @@ def get_CN_details():
     return (CN_Data)
 
 ###########################################################################
-@app.get('/ran_details/', tags=["Get RAN details"])
+@app.get(
+    '/ran_details/', 
+    tags=["Get RAN details"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success! Network deployed!"}
+                }
+            },
+        },
+    },    
+)
 def get_RAN_details():
     #dictionaries for json
     RAN_Data={"make_of_ran":'',
@@ -483,7 +525,28 @@ def get_RAN_details():
 
 
 ###########################################################################
-@app.get('/gnb_details/', tags=["Get gNB details"])
+@app.get(
+    '/gnb_details/', 
+    tags=["Get gNB details"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success! Network deployed!"}
+                }
+            },
+        },
+    },    
+)
 def get_gNB_details():
     #dictionaries for json
     gNB_Data={
@@ -496,7 +559,28 @@ def get_gNB_details():
 
 
 ###########################################################################
-@app.get('/ue_details/', tags=["Get UE details"])
+@app.get(
+    '/ue_details/', 
+    tags=["Get UE details"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success! Network deployed!"}
+                }
+            },
+        },
+    },    
+)
 def get_UE_details():
     #dictionaries for json
     UE_Data={
@@ -509,7 +593,36 @@ def get_UE_details():
 
 
 ###########################################################################
-@app.get('/get_logs/<id>', tags=["Get logs"])
+@app.get(
+    '/get_logs/<id>', 
+    tags=["Get logs"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success! Network deployed!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
 def get_Logs(id):
     #dictionaries for json    
     Logs={ "nf_logs":''
