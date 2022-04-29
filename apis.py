@@ -356,7 +356,37 @@ def deploy_Scenario(CN: CN_options,RAN: RAN_options):
 
 
 ###############################################################
-@app.get('/stop_scenario/{CN}/{RAN}', tags=["Stop a Network"])
+@app.get(
+    '/stop_scenario/{CN}/{RAN}', 
+    tags=["Stop a Network"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success! Network deployed!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },        
+    },
+)
+
 def stop_scenario(CN: CN_options,RAN: RAN_options):
     # select scenario of CN and RAN and then deploy the scenario
     if CN == 'free5gc' and RAN == 'UERANSIM':
