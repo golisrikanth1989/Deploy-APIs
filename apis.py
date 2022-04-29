@@ -179,6 +179,13 @@ def get_logs(client,id):
 
 
 ###############################################################
+# Exception Handler
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=400)
+
+    
+###############################################################
 @app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy or Stop a Network"])
 def deploy_Scenario(CN: str,RAN: str):
     # select scenario of CN and RAN and then deploy the scenario
@@ -259,13 +266,9 @@ def deploy_Scenario(CN: str,RAN: str):
         pwd=os.getcwd()
         print(pwd)
         return {"response":"Success! Network deployed!"} 
+    else: 
+        raise RequestValidationError(status_code=422, detail="Please enter valid parameter values.")
 
-
-###############################################################
-# Exception Handler
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    return PlainTextResponse(str(exc), status_code=400)
 
 ###############################################################
 @app.get('/stop_scenario/{CN}/{RAN}', tags=["Deploy or Stop a Network"])
