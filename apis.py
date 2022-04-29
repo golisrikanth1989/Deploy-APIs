@@ -1,6 +1,10 @@
 import docker
 from fastapi import FastAPI, HTTPException
-from fastapi.exceptions import ValidationError
+from fastapi.exception_handlers import (
+    http_exception_handler,
+    request_validation_exception_handler,
+)
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 import uvicorn
 import sys, os
@@ -204,6 +208,10 @@ def get_logs(client,id):
 def validation_exception_handler(request, exc):
     return PlainTextResponse(str(exc), status_code=400)
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    print(f"OMG! The client sent invalid data!: {exc}")
+    return await request_validation_exception_handler(request, exc)
 
 ###############################################################
 @app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy a Network"])
