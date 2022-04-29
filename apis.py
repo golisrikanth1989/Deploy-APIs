@@ -608,7 +608,7 @@ def get_UE_details():
             "description": "The requested resource was not found",
             "content": {
                 "application/json": {
-                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
                 }
             },
         },    
