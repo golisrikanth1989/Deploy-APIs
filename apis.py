@@ -229,12 +229,12 @@ def get_logs(client,id):
     tags=["Deploy a Network"], 
     responses={
         404: {
-            "model": Message, 
+            #"model": Message, 
             "description": "The requested resource was not found",
-            #  "content": {
-            #     "application/json": {
-            #         "example": {"response":"The requested resource was not found"}
-            #     }
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found"}
+                }
             },
         200: {
             "description": "Successful response.",
