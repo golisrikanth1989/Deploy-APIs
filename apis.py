@@ -1,5 +1,6 @@
 import docker
 from fastapi import FastAPI, HTTPException
+from enum import Enum
 #from fastapi.exception_handlers import (
 #    http_exception_handler,
 #    request_validation_exception_handler,
