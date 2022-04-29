@@ -300,7 +300,7 @@ def deploy_Scenario(CN: str,RAN: str):
     #else: 
     #    print("Inside ELSE")
     except ValidationError as err:
-        raise HTTPException(status_code=422, detail=jsonable_encoder(err.errors())
+        raise HTTPException(status_code=422, detail=jsonable_encoder(err.errors()))
         #raise RequestValidationError(exc="Please enter valid parameter values.")
 
 
