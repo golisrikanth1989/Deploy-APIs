@@ -20,7 +20,7 @@ app = FastAPI(
     description="APIs for 5-Fi Console",
     version="1.0.0",
     contact={
-        "name": "5-fi",
+        "name": "5-Fi",
         "url": "http://5-fi.net/",
         "email": "5-fi@dolcera.com",
     },
