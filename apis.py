@@ -9,7 +9,7 @@ import time
 tags_metadata = [
     {
         "name": "Deploy a Network",
-        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. \nCN parameter can take values: \"free5gc\", \"OAI\" \n RAN parameter can take values: \"UERANSIM\", \"OAI\".",
+        "description": "Deploy a network with Core Network (CN) and Radio Access Network (RAN) stack of your choice. CN parameter can take values: \"free5gc\", \"OAI\"; RAN parameter can take values: \"UERANSIM\", \"OAI\".",
     },
     {
         "name": "Stop a Network",
@@ -202,7 +202,7 @@ def get_logs(client,id):
 # Exception Handler
 @app.exception_handler(ValidationError)
 def validation_exception_handler(request, exc):
-    return PlainTextResponse(str(exc), status_code=422)
+    return PlainTextResponse(str(exc), status_code=400)
 
 
 ###############################################################
@@ -287,7 +287,7 @@ def deploy_Scenario(CN: str,RAN: str):
         print(pwd)
         return {"response":"Success! Network deployed!"} 
     else: 
-        raise ValidationError(status_code=422, detail="Please enter valid parameter values.")
+        raise ValidationError(status_code=400, detail="Please enter valid parameter values.")
 
 
 ###############################################################
