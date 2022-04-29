@@ -296,7 +296,7 @@ def deploy_Scenario(CN: str,RAN: str):
         return {"response":"Success! Network deployed!"} 
     else: 
         print("Inside ELSE")
-        raise RequestValidationError(status_code=400, detail="Please enter valid parameter values.")
+        raise RequestValidationError(exc="Please enter valid parameter values.")
 
 
 ###############################################################
