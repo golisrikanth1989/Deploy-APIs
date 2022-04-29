@@ -1,13 +1,12 @@
 import docker
 from fastapi import FastAPI, HTTPException
-from fastapi.exception_handlers import (
-    http_exception_handler,
-    request_validation_exception_handler,
-)
-from fastapi.encoders import jsonable_encoder
-from pydantic import ValidationError
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import PlainTextResponse
+#from fastapi.exception_handlers import (
+#    http_exception_handler,
+#    request_validation_exception_handler,
+#)
+#from pydantic import ValidationError
+#from fastapi.exceptions import RequestValidationError
+#from fastapi.responses import PlainTextResponse
 import uvicorn
 import sys, os
 import time
@@ -17,7 +16,6 @@ from pydantic import BaseModel
 class Item(BaseModel):
     id: str
     value: str
-
 
 class Message(BaseModel):
     message: str
@@ -220,10 +218,10 @@ def get_logs(client,id):
 #def validation_exception_handler(request, exc):
 #    return PlainTextResponse(str(exc), status_code=400)
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    print(f"OMG! The client sent invalid data!: {exc}")
-    return await request_validation_exception_handler(request, exc)
+#@app.exception_handler(RequestValidationError)
+#async def validation_exception_handler(request, exc):
+#    print(f"OMG! The client sent invalid data!: {exc}")
+#    return await request_validation_exception_handler(request, exc)
 
 ###############################################################
 @app.get(
@@ -232,10 +230,10 @@ async def validation_exception_handler(request, exc):
     responses={
         404: {"model": Message, "description": "The item was not found"},
         200: {
-            "description": "Item requested by ID",
+            "description": "Successful response.",
             "content": {
                 "application/json": {
-                    "example": {"id": "bar", "value": "The bar tenders"}
+                    "example": {"response":"Success! Network deployed!"}
                 }
             },
         },
