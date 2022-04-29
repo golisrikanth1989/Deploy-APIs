@@ -4,6 +4,8 @@ from fastapi.exception_handlers import (
     http_exception_handler,
     request_validation_exception_handler,
 )
+from fastapi.encoders import jsonable_encoder
+from pydantic import ValidationError
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 import uvicorn
@@ -216,87 +218,90 @@ async def validation_exception_handler(request, exc):
 ###############################################################
 @app.get("/deploy_scenario/{CN}/{RAN}", tags=["Deploy a Network"])
 def deploy_Scenario(CN: str,RAN: str):
-    # select scenario of CN and RAN and then deploy the scenario
-    if CN == 'free5gc' and RAN == 'UERANSIM':
-        print("free5gc CN and UERANSIM RAN")
-        os.chdir('../')
-        #check if directory already exists
-        if os.path.isdir('5-fi-docker'):
-            print('True')
-        else:
-            print('False')    
-            os.system('git clone https://github.com/pragnyakiri/5-fi-docker')
-        os.chdir('5-fi-docker')
-        os.system('git pull')
-        print("Pulled")            
-        os.chdir('ueransim')
-        os.system('make')
-        print("ueransim made")
-        os.chdir('../free5gc-compose')
-        os.system('make base')
-        print("make base")
-        os.system('docker-compose build')
-        os.system('docker-compose up -d')
-        os.chdir('../..')
-        os.chdir('Deploy-APIs')
-        pwd=os.getcwd()
-        print(pwd)
-        return {"response":"Success! Network deployed!"}
-    elif CN == 'free5gc' and RAN == 'OAI':
-        print("free5gc CN and OAI RAN")
-        os.chdir('../')
-        #check if directory already exists
-        if os.path.isdir('5-fi-docker-oai'):
-            print('True')
-        else:
-            print('False')    
-            os.system('git clone https://github.com/pragnyakiri/5-fi-docker-oai')
-        os.chdir('5-fi-docker-oai')
-        os.system('git pull')
-        os.chdir('free5gc-compose')
-        os.system('make base')
-        print("make base")        
-        os.system('sudo docker-compose build')
-        os.system('sudo docker-compose up -d --remove-orphans')
-        os.chdir('../..')
-        os.chdir('Deploy-APIs')
-        pwd=os.getcwd()
-        print(pwd)
-        return {"response":"Success! Network deployed!"}
-    elif CN == 'OAI' and RAN == 'OAI':
-        print("OAI CN and OAI RAN")
-        os.chdir('../')
-        #check if directory already exists
-        if os.path.isdir('openairinterface-5g'):
-            print('True')
-        else:
-            print('False')    
-            os.system('git clone https://github.com/pragnyakiri/openairinterface-5g')
-        os.chdir('openairinterface-5g')
-        os.system('git checkout develop')
-        os.system('git pull')
-        os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
-        os.system('docker-compose up -d mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn')
-        print("CN is UP")   
-        time.sleep(30)     
-        os.system('docker-compose ps -a')
-        time.sleep(10)
-        os.system('docker-compose up -d oai-gnb')
-        time.sleep(20)
-        os.system('docker-compose ps -a')
-        time.sleep(20)     
-        os.system('docker-compose ps -a')
-        os.system('docker-compose up -d oai-nr-ue')
-        time.sleep(20)     
-        os.system('docker-compose ps -a')
-        os.chdir('../../../..')      
-        os.chdir('Deploy-APIs')
-        pwd=os.getcwd()
-        print(pwd)
-        return {"response":"Success! Network deployed!"} 
-    else: 
-        print("Inside ELSE")
-        raise RequestValidationError(exc="Please enter valid parameter values.")
+    try:
+        # select scenario of CN and RAN and then deploy the scenario
+        if CN == 'free5gc' and RAN == 'UERANSIM':
+            print("free5gc CN and UERANSIM RAN")
+            os.chdir('../')
+            #check if directory already exists
+            if os.path.isdir('5-fi-docker'):
+                print('True')
+            else:
+                print('False')    
+                os.system('git clone https://github.com/pragnyakiri/5-fi-docker')
+            os.chdir('5-fi-docker')
+            os.system('git pull')
+            print("Pulled")            
+            os.chdir('ueransim')
+            os.system('make')
+            print("ueransim made")
+            os.chdir('../free5gc-compose')
+            os.system('make base')
+            print("make base")
+            os.system('docker-compose build')
+            os.system('docker-compose up -d')
+            os.chdir('../..')
+            os.chdir('Deploy-APIs')
+            pwd=os.getcwd()
+            print(pwd)
+            return {"response":"Success! Network deployed!"}
+        elif CN == 'free5gc' and RAN == 'OAI':
+            print("free5gc CN and OAI RAN")
+            os.chdir('../')
+            #check if directory already exists
+            if os.path.isdir('5-fi-docker-oai'):
+                print('True')
+            else:
+                print('False')    
+                os.system('git clone https://github.com/pragnyakiri/5-fi-docker-oai')
+            os.chdir('5-fi-docker-oai')
+            os.system('git pull')
+            os.chdir('free5gc-compose')
+            os.system('make base')
+            print("make base")        
+            os.system('sudo docker-compose build')
+            os.system('sudo docker-compose up -d --remove-orphans')
+            os.chdir('../..')
+            os.chdir('Deploy-APIs')
+            pwd=os.getcwd()
+            print(pwd)
+            return {"response":"Success! Network deployed!"}
+        elif CN == 'OAI' and RAN == 'OAI':
+            print("OAI CN and OAI RAN")
+            os.chdir('../')
+            #check if directory already exists
+            if os.path.isdir('openairinterface-5g'):
+                print('True')
+            else:
+                print('False')    
+                os.system('git clone https://github.com/pragnyakiri/openairinterface-5g')
+            os.chdir('openairinterface-5g')
+            os.system('git checkout develop')
+            os.system('git pull')
+            os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
+            os.system('docker-compose up -d mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn')
+            print("CN is UP")   
+            time.sleep(30)     
+            os.system('docker-compose ps -a')
+            time.sleep(10)
+            os.system('docker-compose up -d oai-gnb')
+            time.sleep(20)
+            os.system('docker-compose ps -a')
+            time.sleep(20)     
+            os.system('docker-compose ps -a')
+            os.system('docker-compose up -d oai-nr-ue')
+            time.sleep(20)     
+            os.system('docker-compose ps -a')
+            os.chdir('../../../..')      
+            os.chdir('Deploy-APIs')
+            pwd=os.getcwd()
+            print(pwd)
+            return {"response":"Success! Network deployed!"} 
+    #else: 
+    #    print("Inside ELSE")
+    except ValidationError as err:
+        raise HTTPException(status_code=422, detail=jsonable_encoder(err.errors()
+        #raise RequestValidationError(exc="Please enter valid parameter values.")
 
 
 ###############################################################
