@@ -322,7 +322,7 @@ def get_CN_details():
             CN = 'free5gc'
         elif 'spgw' in container.name:
             CN = 'OAI' 
-    if CN == ''
+    if CN==''
         raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
     CN_Data["make_of_cn"]=CN
     CN_Data["no_nfs"], x, CN_Data["no_connected_gnbs"], CN_Data["no_upfs"]=count_NFs(client)
