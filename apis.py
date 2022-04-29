@@ -1,6 +1,6 @@
 import docker
 from fastapi import FastAPI, HTTPException
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import ValidationError
 from fastapi.responses import PlainTextResponse
 import uvicorn
 import sys, os
