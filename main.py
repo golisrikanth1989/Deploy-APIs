@@ -355,81 +355,42 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         time.sleep(30)
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
-            cmd = 'docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d oai-nrf'
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d mysql'
-            print(cmd)
-            os.system(cmd)
-            time.sleep(10)
-            cont_name = cn_str + '_oai-nrf_1'
-            cmd = 'docker inspect -f \'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' ' + cont_name
-            print(cmd)
-            nrf_ipaddr_o = os.popen(cmd)
-            nrf_ipaddr = nrf_ipaddr_o.read()
-            
-            cont_name = cn_str + '_mysql_1'
-            cmd = 'docker inspect -f \'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' ' + cont_name
-            print(cmd)
-            mysql_ipaddr_o = os.popen(cmd)
-            mysql_ipaddr = mysql_ipaddr_o.read()
-            
-
-            cmd = 'echo \"mysql_ipaddr='+ str(mysql_ipaddr) +'\" \" nrf_ipaddr='+str(nrf_ipaddr)+ '\" > .env' + '&& docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d oai-amf' 
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb1'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cont_name = cn_str + '_oai-amf_1'
-            cmd = 'docker inspect -f \'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' ' + cont_name
-            print(cmd)
-            amf_ipaddr_o = os.popen(cmd)
-            amf_ipaddr = amf_ipaddr_o.read()
-            print(type(amf_ipaddr))
-            print(amf_ipaddr)
-            print(str(amf_ipaddr))
-            
-            
-            cmd = 'echo \"amf_ipaddr='+ str(amf_ipaddr) + '\" \"nrf_ipaddr='+str(nrf_ipaddr)+'\" > .env' + ' && docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d oai-smf'
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb2'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
-            cont_name = cn_str + '_oai-smf_1'
-            cmd = 'docker inspect -f \'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' ' + cont_name
-            print(cmd)
-            smf_ipaddr_o = os.popen(cmd)
-            smf_ipaddr = smf_ipaddr_o.read()
-            
-            cmd = 'echo \"nrf_ipaddr='+ str(nrf_ipaddr) +'\" \"smf_ipaddr='+str(smf_ipaddr)+'\" > .env' + ' && docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d oai-spgwu' # oai-ext-dn'
+            # For First gNB
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue1' 
             print(cmd)
             os.system(cmd)
-            time.sleep(15)
-            print("OAI ",cn_str," is UP")
-            print("Connecting OAI-RAN Access Points for ",cn_str)
-            
+            time.sleep(10)
 
-            cmd = 'echo \"amf_ipaddr='+ str(amf_ipaddr) +'\" > .env' + ' && docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d --scale oai-gnb='+str(RAN_Quantity)
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue2' 
             print(cmd)
             os.system(cmd)
-            time.sleep(10)   
-
-            for i in range(int(RAN_Quantity)):
-                #pr_name = cn_str
-                #cmd = 'echo \"amf_ipaddr='+ str(amf_ipaddr) +'\" > .env' + ' && docker-compose -p '+ pr_name + ' -f docker-compose1.yaml up -d oai-gnb'
-                #os.system(cmd)
-                cont_name = cn_str + '_oai-gnb_'+str(i+1)
-                print(cont_name)
-                cmd = 'docker inspect -f \'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' ' + cont_name
-                gnb_ipaddr_o = os.popen(cmd)
-                gnb_ipaddr = gnb_ipaddr_o.read()
-                
-                print(cmd)
-                nUEs = random.randint(1,4)
-                cmd = 'echo \"gnb_ipaddr1='+ str(gnb_ipaddr) +'\" > .env' + ' && docker-compose -p '+ cn_str + ' -f docker-compose1.yaml up -d --scale oai-nr-ue='+str(nUEs)
-                os.system(cmd)
-                time.sleep(10)
+            time.sleep(10)
+            
+            # For Second gNB  
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue3' 
+            print(cmd)
+            os.system(cmd)
+            time.sleep(10)
+            
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue4' 
+            print(cmd)
+            os.system(cmd)
+            time.sleep(10)
+            print('OAI CN and OAI RAN with UEs are Deployed')
     elif CN_Make == 'OAI' and RAN_Make == 'UERANSIM':
         print("Selected OAI CN and UERANSIM Make")
         os.chdir('../')
