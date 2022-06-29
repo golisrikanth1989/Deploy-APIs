@@ -13,3 +13,7 @@ To stop the dockers deployed
 http://192.168.1.245:3001/stop_Scenario/free5gc/UERANSIM
 http://192.168.1.245:3001/stop_Scenario/free5gc/OAI
 http://192.168.1.245:3001/stop_Scenario/OAI/OAI
+
+
+For main.py (For Local Machine Testing)
+http://127.0.0.1:8000/docs
