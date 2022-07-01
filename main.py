@@ -28,11 +28,22 @@ RAN_List = [
     {"name" : "Nokia", "status" : False}
 ]
 UE_List = [
-    {"name" : "OAI", "status" : True},
-    {"name" : "UERANSIM", "status" : True},
-    {"name" : "Samsung", "status" : False},
-    {"name" : "Nokia", "status" : False}
+    {"name" : "Camera", "status" : True},
+    {"name" : "Sensors", "status" : True},
+    {"name" : "AGVs", "status" : True},
+    {"name" : "Actuators", "status" : True},
+    {"name" : "Others", "status" : True}
 ]
+Network_List = [
+    {"name" : "All", "status" : True},
+    {"name" : "Network1", "status" : True},
+    {"name" : "Network2", "status" : True},
+    {"name" : "Network3", "status" : False},
+    {"name" : "Network4", "status" : False},
+    {"name" : "Network5", "status" : False}
+]
+
+
 
 
 class Item(BaseModel):
@@ -57,7 +68,7 @@ class RAN_options(str, Enum):
 class UE_options(str, Enum):
     free5gc = "UERANSIM"
     OAI = "OAI"
-    Nokia = "Nokia"
+    Nokia = "srsRAN"
 
 tags_metadata = [
     {
@@ -97,14 +108,34 @@ tags_metadata = [
         "description": "Get information about the UEs in the network.",
     },
     {
-        "name": "Get logs",
-        "description": "Get logs of the container with containerid mentioned.",
-    }, 
+        "name": "Get Network Summary",
+        "description": "Get Network Statistics such as Latency, Packet Loss, Throughput and Mobility",
+    },
     {
         "name": "Get Network Statistics",
-        "description": "Get Successfull Connections of the Containers using Health Status.",
-    },                        
-]
+        "description": "Get Network Statistics such as Latency, Packet Loss, Throughput and Mobility",
+    },
+    {
+        "name": "Get Network Lists",
+        "description": "Get List of Deployed Networks",
+    },  
+    {
+        "name": "Get Network Inspect Details",
+        "description": "Get Network Functions Terminals, Logs and Packets",
+    },     
+    {
+        "name": "Get Logs",
+        "description": "Get logs of the container with containerid mentioned.",
+    },
+    {
+        "name": "Get Console",
+        "description": "Get Console of the container with containerid mentioned.",
+    },
+    {
+        "name": "Get Packets",
+        "description": "Get Packets of the container with containerid mentioned.",
+    },                    
+]                        
 
 app = FastAPI(
     title="5-Fi APIs",
@@ -267,6 +298,17 @@ def get_logs(client,id):
             logs = container.logs().decode("utf-8")
             return logs
 
+def get_console(client,id):
+    for container in client.containers.list():
+        if id in str(container.id):
+            console = container.logs().decode("utf-8")
+            return console
+
+def get_packets(client,id):
+    for container in client.containers.list():
+        if id in str(container.id):
+            packets = container.logs().decode("utf-8")
+            return packets
 
 ###############################################################
 # Exception Handler
@@ -287,8 +329,6 @@ def get_logs(client,id):
 
 @app.get('/CN_list', tags = ["Get Core Networks List"], status_code=200)
 
-#def Choose_CN(CN: CN_options):
-#    return {"Selected the Core Network"}
 def get_cn_List()-> dict:
     return {"CN_List": CN_List}
 
@@ -296,18 +336,21 @@ def get_cn_List()-> dict:
 
 @app.get('/RAN_list', tags = ["Get Access Points List"],status_code=200)
 
-#def Choose_CN(CN: CN_options):
-#    return {"Selected the Core Network"}
 def get_ran_List()-> dict:
     return {"RAN_List": RAN_List}
 ###############################################################
 
 @app.get('/UE_list', tags = ["Get Devices List"],status_code=200)
 
-#def Choose_CN(CN: CN_options):
-#    return {"Selected the Core Network"}
 def get_ue_List()-> dict:
     return {"UE_List": UE_List}
+###############################################################
+
+@app.get('/Network_List', tags = ["Get Network Lists"],status_code=200)
+
+def get_Network_List()-> dict:
+    return {"Network_List": Network_List}
+
 #############################################################################################################
 
 @app.get(
@@ -343,7 +386,7 @@ def get_ue_List()-> dict:
 
 ####################################################################################################################
 
-def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Quantity):
+def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Quantity,Cameras_Make: UE_options,Cameras_Quantity,Sensors_Make: UE_options,Sensors_Quantity,AGVs_Make:UE_options,AGVs_Quantity,Actuators_Make:UE_options,Actuators_Quantity,Others_Make:UE_options, Other_Quantity):
     if CN_Make == 'OAI' and RAN_Make == 'OAI':
         print("Selected OAI CN and RAN Make")
         os.chdir('../')
@@ -706,7 +749,7 @@ def get_CN_details():
 )
 def get_RAN_details():
     #dictionaries for json
-    RAN_Data={"make_of_ran":'',
+    RAN_Data={"make_of_ran":[],
     "no_ues":0,
     "no_gnbs":0,
     "gnb_list":[],
@@ -714,14 +757,14 @@ def get_RAN_details():
     }
     state= 'active'
     client=docker.from_env()
-    RAN=''
+    RAN=[]
     for container in client.containers.list():
         if 'gnb' in container.name:
             if 'oai' in container.name:
-                RAN = 'OAI'
+                RAN.append('OAI')
             else:
-                RAN = 'UERANSIM'  
-    if RAN=='':
+                RAN.append('UERANSIM')  
+    if RAN==[]:
         raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                                  
     RAN_Data["make_of_ran"]=RAN
     x, RAN_Data["no_ues"], RAN_Data["no_gnbs"], y=count_NFs(client)
@@ -805,6 +848,145 @@ def get_UE_details():
 
 
 ###########################################################################
+
+@app.get(
+    '/get_NetworkSummary/', 
+    tags=["Get Network Summary"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
+
+def get_NetworkSummary():
+    #dictionaries for json
+    Net_Sum={"Number of Cells Available":3000,
+    "Number of Cells Active":2400,
+    "Percentage Utilization": '80%',
+    }
+    state= 'active'
+    
+    return Net_Sum
+
+
+###########################################################################
+
+@app.get(
+    '/get_NetworkStats/', 
+    tags=["Get Network Statistics"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
+
+def get_NetworkStats():
+    #dictionaries for json
+    Net_Stat={"Sucessful Connects":'80%',
+    "Throughput":'8.1 Gbps',
+    "Latency":'10ms',
+    "Packet Loss":'13%',
+    "Mobility":'80%',
+    }
+    state= 'active'
+    
+    return Net_Stat
+
+###############################################################
+@app.get(
+    "/Inspect_Details/", 
+    tags=["Get Network Inspect Details"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. Please check if network is deployed!"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+    },
+)
+def get_Inspect_details():
+    #dictionaries for json
+    Inspect_List={"Inspect_List":[],
+    "no_containers":0,
+    }
+    #state= 'active'
+    client=docker.from_env()
+    Inspect = [] #client.containers.list()#[]    
+    Count=0
+    print(client.containers.list())
+    for container in client.containers.list():
+        print(container.name)
+        if 'mysql' in container.name:
+            continue
+        elif 'webui' in container.name:
+            continue
+        elif 'ext-dn' in container.name:
+            continue
+        else:
+            Inspect.append(container.name[12:])
+            Count = Count+1        
+    if Inspect==[]:
+        raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
+    Inspect_List["Inspect_List"]=Inspect
+    Inspect_List["no_containers"]=Count
+    return (Inspect_List)
+
+######################################################################################################################################################
 @app.get(
     '/get_logs/<id>', 
     tags=["Get logs"],
@@ -848,9 +1030,10 @@ def get_Logs(id):
     Logs["nf_logs"]=get_logs(client,id)
     return Logs
 ######################################################################################################################################################
+
 @app.get(
-    '/get_NetworkStats/', 
-    tags=["Get Network Statistics"],
+    '/get_console/<id>', 
+    tags=["Get Console"],
     responses={
         404: {
             "description": "The requested resource was not found",
@@ -878,17 +1061,65 @@ def get_Logs(id):
         },               
     },    
 )
-def get_NetworkStats():
-    #dictionaries for json
-    Net_Stat={"Sucessful Connects":'80%',
-    "Throughput":'8.1 Gbps',
-    "Latency":'10ms',
-    "Packet Loss":'13%',
-    "Mobility":'80%',
-    }
-    state= 'active'
-    
-    return Net_Stat
+def get_Console(id):
+    #dictionaries for json    
+    Console={ "nf_console":''
+   }
+    client=docker.from_env()
+    container=client.containers.list(filters={"id":id})
+    if len(container)==0:
+        print ("no container running with given id")
+        raise HTTPException(status_code=404, detail="There is no container running with the given id.")
+        return   
+    Console["nf_console"]=get_console(client,id)
+    return Console
+
+
+######################################################################################################################################################
+
+@app.get(
+    '/get_packets/<id>', 
+    tags=["Get Packets"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
+def get_Packets(id):
+    #dictionaries for json    
+    Packets={ "nf_packets":''
+   }
+    client=docker.from_env()
+    container=client.containers.list(filters={"id":id})
+    if len(container)==0:
+        print ("no container running with given id")
+        raise HTTPException(status_code=404, detail="There is no container running with the given id.")
+        return   
+    Packets["nf_packets"]=get_packets(client,id)
+    return Packets
+######################################################################################################################################################
 
 
 
