@@ -15,6 +15,10 @@ import time
 import random
 from pydantic import BaseModel
 
+
+################################################################################################################################################################
+#                                                                Defining Dictionaries for List of Elements                                                    #
+################################################################################################################################################################
 CN_List = [
     {"name" : "OAI", "status" : True},
     {"name" : "free5GC", "status" : True},
@@ -44,8 +48,9 @@ Network_List = [
 ]
 
 
-
-
+################################################################################################################################################################
+#                                                                        Input Options for APIs                                                                #
+################################################################################################################################################################
 class Item(BaseModel):
     id: str
     value: str
@@ -70,6 +75,11 @@ class UE_options(str, Enum):
     OAI = "OAI"
     Nokia = "srsRAN"
 
+
+
+################################################################################################################################################################
+#                                                                             Tags for APIs                                                                    #
+################################################################################################################################################################
 tags_metadata = [
     {
         "name": "Get Core Networks List",
@@ -134,7 +144,11 @@ tags_metadata = [
     {
         "name": "Get Packets",
         "description": "Get Packets of the container with containerid mentioned.",
-    },                    
+    },  
+    {
+        "name": "Get Network Issues and Resolving Actions",
+        "description": "Get Packets of the container with containerid mentioned.",
+    },               
 ]                        
 
 app = FastAPI(
@@ -149,6 +163,9 @@ app = FastAPI(
     openapi_tags=tags_metadata,
 )
 
+################################################################################################################################################################
+#                                                                       Functions for APIs                                                                     #
+################################################################################################################################################################
 
 def num_PDUsessions(client,id):
     for container in client.containers.list():
@@ -310,6 +327,19 @@ def get_packets(client,id):
             packets = container.logs().decode("utf-8")
             return packets
 
+def get_network_attention(tag_issue,CMessage,CSite,CSwitch,CPort,CID):
+    network_attention = [{"Tag":tag_issue,"Message" : CMessage, "Site" : CSite,"Switch":CSwitch, "Port": CPort,"ID":CID}]      
+    return network_attention
+
+def get_resolved_action(tag_issue,CID,CMessage,CSite):
+    resolved_action = [{"Tag":tag_issue,"ID":CID,"Message" : CMessage, "Site" : CSite}]      
+    return resolved_action
+
+
+
+################################################################################################################################################################
+#                                                                     List of Elements APIs                                                                    #
+################################################################################################################################################################
 ###############################################################
 # Exception Handler
 #@app.exception_handler(ValidationError)
@@ -351,7 +381,9 @@ def get_ue_List()-> dict:
 def get_Network_List()-> dict:
     return {"Network_List": Network_List}
 
-#############################################################################################################
+################################################################################################################################################################
+#                                                                Network Deploy & Undeploy APIs                                                                #
+################################################################################################################################################################
 
 @app.get(
     "/deploy_scenario/", 
@@ -390,7 +422,7 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
     if CN_Make == 'OAI' and RAN_Make == 'OAI':
         print("Selected OAI CN and RAN Make")
         os.chdir('../')
-        os.chdir('openairinterface5g')
+        os.chdir('openairinterface-5g')
         os.system('git checkout develop')
 #        os.system('git pull')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
@@ -398,38 +430,38 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         time.sleep(30)
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
+            cmd = 'docker-compose -f docker-compose1.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb1'
+            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-gnb1'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb2'
+            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-gnb2'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
             # For First gNB
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue1' 
+            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue1' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue2' 
+            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue2' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
             # For Second gNB  
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue3' 
+            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue3' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue4' 
+            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue4' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
@@ -672,7 +704,10 @@ def stop_scenario(CN: CN_options,RAN: RAN_options):
         return {"response":"Success! Network stopped."}
 
         
-###############################################################
+
+################################################################################################################################################################
+#                                                                 Network Summary APIs                                                                         #
+################################################################################################################################################################
 @app.get(
     "/cn_details/", 
     tags=["Get CN details"],
@@ -936,7 +971,9 @@ def get_NetworkStats():
     
     return Net_Stat
 
-###############################################################
+################################################################################################################################################################
+#                                                                 Inspect Screen APIs                                                                          #
+################################################################################################################################################################
 @app.get(
     "/Inspect_Details/", 
     tags=["Get Network Inspect Details"],
@@ -989,7 +1026,7 @@ def get_Inspect_details():
 ######################################################################################################################################################
 @app.get(
     '/get_logs/<id>', 
-    tags=["Get logs"],
+    tags=["Get Logs"],
     responses={
         404: {
             "description": "The requested resource was not found",
@@ -1076,7 +1113,6 @@ def get_Console(id):
 
 
 ######################################################################################################################################################
-
 @app.get(
     '/get_packets/<id>', 
     tags=["Get Packets"],
@@ -1120,11 +1156,89 @@ def get_Packets(id):
     Packets["nf_packets"]=get_packets(client,id)
     return Packets
 ######################################################################################################################################################
+@app.get(
+    '/get_NetwotkAttentions/', 
+    tags=["Get Network Issues and Resolving Actions"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
+def get_NetwotkAttentions():
+    #dictionaries for json
+    NetworkAttentions = []
+    Tag = "CN"
+    Message = 'SMF is unhealthy'
+    Site = "Irvine,CA"
+    Switch = "9a9bea"
+    Port = "3000"
+    ID = "CN12"
+    NetworkAttentions.append(get_network_attention(Tag,Message,Site,Switch,Port,ID))
 
+    Tag = "AP"
+    Message = 'AP2025 has refused connection issue'
+    Site = "Peru,LA"
+    Switch = "10ab612"
+    Port = "9001"
+    ID = "AP025"
+    NetworkAttentions.append(get_network_attention(Tag,Message,Site,Switch,Port,ID))
+    
+    Tag = "Resolved Action"
+    ID = "Device23"
+    Message = "Battery Replaced"
+    Site = "Irvine,CA"
+    NetworkAttentions.append(get_resolved_action(Tag,ID,Message,Site))
+    
+    Tag = "Resolved Action"
+    ID = "CN12"
+    Message = "AMF Redeployed"
+    Site = "Sweden,EU"
+    NetworkAttentions.append(get_resolved_action(Tag,ID,Message,Site))
+    
+
+    Tag = "CN"
+    Message = 'AMF is unhealthy'
+    Site = "Hyderabad,IND"
+    Switch = "9a9bcd"
+    Port = "3000"
+    ID = "CN5"
+    NetworkAttentions.append(get_network_attention(Tag,Message,Site,Switch,Port,ID))
+
+    Tag = "Device"
+    Message = 'Needed Battery Replacement'
+    Site = "Irvine,CA"
+    Switch = "9a9bea"
+    Port = "3000"
+    ID = "Device23"
+    NetworkAttentions.append(get_network_attention(Tag,Message,Site,Switch,Port,ID))
+
+    return NetworkAttentions
 
 
 #uvicorn.run(app)
-#uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
+uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
