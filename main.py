@@ -1,6 +1,8 @@
 import docker
 from fastapi import FastAPI, HTTPException, Form, Path, Query
 from enum import Enum
+import packets
+from flask import Flask, request, jsonify
 #from fastapi.exception_handlers import (
 #    http_exception_handler,
 #    request_validation_exception_handler,
@@ -32,19 +34,17 @@ RAN_List = [
     {"name" : "Nokia", "status" : False}
 ]
 UE_List = [
-    {"name" : "Camera", "status" : True},
-    {"name" : "Sensors", "status" : True},
-    {"name" : "AGVs", "status" : True},
-    {"name" : "Actuators", "status" : True},
-    {"name" : "Others", "status" : True}
+    {"name" : "OAI", "status" : True},
+    {"name" : "UERANSIM", "status" : True},
+    {"name" : "srsRAN", "status" : False},
 ]
 Network_List = [
-    {"name" : "All", "status" : True},
-    {"name" : "Network1", "status" : True},
-    {"name" : "Network2", "status" : True},
-    {"name" : "Network3", "status" : False},
-    {"name" : "Network4", "status" : False},
-    {"name" : "Network5", "status" : False}
+    {"name" : "All", "ID":0,"status" : True},
+    {"name" : "Network1","ID":1, "status" : True},
+    {"name" : "Network2", "ID":2,"status" : True},
+    {"name" : "Network3", "ID":3,"status" : False},
+    {"name" : "Network4", "ID":4,"status" : False},
+    {"name" : "Network5", "ID":5,"status" : False}
 ]
 
 
@@ -321,11 +321,14 @@ def get_console(client,id):
             console = container.logs().decode("utf-8")
             return console
 
+
+#@app.route('/monitor_nf_packets/<id>')
 def get_packets(client,id):
-    for container in client.containers.list():
-        if id in str(container.id):
-            packets = container.logs().decode("utf-8")
-            return packets
+    #dictionaries for json
+    monitor_nf={"NF_packets":''}
+    container=client.containers.list(filters={"id":id})
+    monitor_nf["NF_packets"]=packets.get_packets(container[0].name)
+    return jsonify(monitor_nf),200
 
 def get_network_attention(tag_issue,CMessage,CSite,CSwitch,CPort,CID):
     network_attention = [{"Tag":tag_issue,"Message" : CMessage, "Site" : CSite,"Switch":CSwitch, "Port": CPort,"ID":CID}]      
@@ -422,46 +425,46 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
     if CN_Make == 'OAI' and RAN_Make == 'OAI':
         print("Selected OAI CN and RAN Make")
         os.chdir('../')
-        os.chdir('openairinterface-5g')
+        os.chdir('openairinterface5g_wk24')
         os.system('git checkout develop')
-#        os.system('git pull')
+        #os.system('git pull')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker ps -aq | xargs docker rm -f')
         time.sleep(30)
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
-            cmd = 'docker-compose -f docker-compose1.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-gnb1'
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb1'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-gnb2'
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb2'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
             # For First gNB
-            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue1' 
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue1' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue2' 
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue2' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
             # For Second gNB  
-            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue3' 
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue3' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
-            cmd = 'docker-compose -f docker-compose1.yaml up -d oai-nr-ue4' 
+            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue4' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
@@ -961,7 +964,7 @@ def get_NetworkSummary():
 
 def get_NetworkStats():
     #dictionaries for json
-    Net_Stat={"Sucessful Connects":'80%',
+    Net_Stat={"Successful Connects":'80%',
     "Throughput":'8.1 Gbps',
     "Latency":'10ms',
     "Packet Loss":'13%',
@@ -999,11 +1002,13 @@ def get_NetworkStats():
 def get_Inspect_details():
     #dictionaries for json
     Inspect_List={"Inspect_List":[],
+    "CID":[],
     "no_containers":0,
     }
     #state= 'active'
     client=docker.from_env()
-    Inspect = [] #client.containers.list()#[]    
+    Inspect = [] #client.containers.list()#[]
+    Cid = []    
     Count=0
     print(client.containers.list())
     for container in client.containers.list():
@@ -1016,10 +1021,12 @@ def get_Inspect_details():
             continue
         else:
             Inspect.append(container.name[12:])
+            Cid.append(container.id)
             Count = Count+1        
     if Inspect==[]:
         raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
     Inspect_List["Inspect_List"]=Inspect
+    Inspect_List["CID"]=Cid
     Inspect_List["no_containers"]=Count
     return (Inspect_List)
 
@@ -1143,18 +1150,14 @@ def get_Console(id):
         },               
     },    
 )
-def get_Packets(id):
-    #dictionaries for json    
-    Packets={ "nf_packets":''
-   }
+#@app.route('/monitor_nf_packets/<id>')
+def get_packets(id):
+    #dictionaries for json
+    monitor_nf={"NF_packets":''}
     client=docker.from_env()
     container=client.containers.list(filters={"id":id})
-    if len(container)==0:
-        print ("no container running with given id")
-        raise HTTPException(status_code=404, detail="There is no container running with the given id.")
-        return   
-    Packets["nf_packets"]=get_packets(client,id)
-    return Packets
+    monitor_nf["NF_packets"]=packets.get_packets(container[0].name)
+    return jsonify(monitor_nf)
 ######################################################################################################################################################
 @app.get(
     '/get_NetwotkAttentions/', 
@@ -1211,6 +1214,7 @@ def get_NetwotkAttentions():
     Site = "Irvine,CA"
     NetworkAttentions.append(get_resolved_action(Tag,ID,Message,Site))
     
+    
     Tag = "Resolved Action"
     ID = "CN12"
     Message = "AMF Redeployed"
@@ -1236,9 +1240,50 @@ def get_NetwotkAttentions():
 
     return NetworkAttentions
 
+######################################################################################################################################################
+@app.get(
+    '/get_traffic/', 
+    tags=["Get Packets"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
+#@app.route('/monitor_nf_packets/<id>')
+def get_traffic():
+    #dictionaries for json
+    monitor_traffic={"UL":'',"DL":''}
+#    client=docker.from_env()
+ #   container=client.containers.list(filters={"id":id})
+    monitor_traffic["UL"]=90.25
+    monitor_traffic["DL"]=270.75
+    
+    return monitor_traffic
 
 #uvicorn.run(app)
-uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
+#uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
