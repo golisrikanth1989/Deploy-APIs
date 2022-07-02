@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Form, Path, Query
 from enum import Enum
 import packets
 from flask import Flask, request, jsonify
+import urllib, json
 #from fastapi.exception_handlers import (
 #    http_exception_handler,
 #    request_validation_exception_handler,
@@ -46,7 +47,16 @@ Network_List = [
     {"name" : "Network4", "ID":4,"status" : False},
     {"name" : "Network5", "ID":5,"status" : False}
 ]
-
+App_Hosted_List = [
+    {"name" : "Cloud", "status" : True},
+    {"name" : "Internal", "status" : True},
+    {"name" : "External", "status" : True}
+]
+App_Details = [
+    {"Application Name" : "Pick-N-Pack", "status" : True},
+    {"Input1" : "Weight Sensor", "Input2":"Video Stream","status" : True},
+    {"Output1" : "Video Analytics/Dashboard", "Output2":"Actuator","status" : True}
+]
 
 ################################################################################################################################################################
 #                                                                        Input Options for APIs                                                                #
@@ -75,7 +85,10 @@ class UE_options(str, Enum):
     OAI = "OAI"
     Nokia = "srsRAN"
 
-
+class APP_options(str, Enum):
+    free5gc = "Cloud"
+    OAI = "Internal"
+    Nokia = "External"
 
 ################################################################################################################################################################
 #                                                                             Tags for APIs                                                                    #
@@ -383,6 +396,11 @@ def get_ue_List()-> dict:
 
 def get_Network_List()-> dict:
     return {"Network_List": Network_List}
+
+@app.get('/ApplicationDetails/', tags = ["Get Application Details"],status_code=200)
+
+def get_Application_Details()-> dict:
+    return {"Application Details": App_Details}    
 
 ################################################################################################################################################################
 #                                                                Network Deploy & Undeploy APIs                                                                #
@@ -1160,7 +1178,7 @@ def get_packets(id):
     return jsonify(monitor_nf)
 ######################################################################################################################################################
 @app.get(
-    '/get_NetwotkAttentions/', 
+    '/get_NetworkAttentions/', 
     tags=["Get Network Issues and Resolving Actions"],
     responses={
         404: {
@@ -1189,7 +1207,7 @@ def get_packets(id):
         },               
     },    
 )
-def get_NetwotkAttentions():
+def get_NetworkAttentions():
     #dictionaries for json
     NetworkAttentions = []
     Tag = "CN"
@@ -1243,7 +1261,7 @@ def get_NetwotkAttentions():
 ######################################################################################################################################################
 @app.get(
     '/get_traffic/', 
-    tags=["Get Packets"],
+    tags=["Get UL/DL Traffic"],
     responses={
         404: {
             "description": "The requested resource was not found",
@@ -1281,6 +1299,11 @@ def get_traffic():
     monitor_traffic["DL"]=270.75
     
     return monitor_traffic
+
+
+######################################################################################################################################################
+
+
 
 #uvicorn.run(app)
 #uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
