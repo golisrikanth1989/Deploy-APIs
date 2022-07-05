@@ -992,29 +992,6 @@ def get_NetworkSummary():
 #@app.route('/monitor_nf_stats/<id>')
 #def monitor_nf_stats(id):
 def get_NetworkStats(id):
-    Net_Stat={"Successful Connects":'80%',
-    "Throughput":[],
-    "Latency":'10ms',
-    "Packet Loss":'13%',
-    "Mobility":'80%',
-    }
-    state= 'active'
-    #sucess = 'ok goli'
-    tT = 5
-    str2 = 'iperf -i 1 -fk -B 12.1.1.2 -b 200M -c 192.168.72.135 -r -t'+ str(tT)+ '| awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
-    client=docker.from_env()
-    container = client.containers.get(id)
-    run=container.exec_run(['sh', '-c', str2])
-    temp1=(run.decode("utf-8"))
-    out1 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
-    ulTh = sum(out1[0:tT+1])/len(out1[0:tT+1])
-    #print(ulTh)
-    dlTh = sum(out1[tT+1:])/len(out1[tT+1:])
-    #print(out1[t+1:])
-    #type(out1)
-    #print(out1)
-    Throughput = ((ulTh+dlTh)/1000) 
-    #print(out2)
     #IPaddr = measurements.get_IPaddressOfUE(client,id)
     #print(IPaddr) 
 
@@ -1040,6 +1017,30 @@ def get_NetworkStats(id):
             chart3_dict["data"].append({key:((sum(lat_dict[key])/len(lat_dict[key]))/100000)})
     monitor_nf["NF_stats"]={"chart1":chart1_dict,"chart2":chart2_dict,"chart3":chart3_dict}
      """
+    Net_Stat={"Successful Connects":'80%',
+    "Throughput":[],
+    "Latency":'10ms',
+    "Packet Loss":'13%',
+    "Mobility":'80%',
+    }
+    state= 'active'
+ 
+    tT = 5
+    str2 = 'iperf -i 1 -fk -B 12.1.1.2 -b 200M -c 192.168.72.135 -r -t'+ str(tT)+ '| awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
+    client=docker.from_env()
+    container = client.containers.get(id)
+    run=container.exec_run(['sh', '-c', str2])
+    temp1=(run.decode("utf-8"))
+    out1 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
+    ulTh = sum(out1[0:tT+1])/len(out1[0:tT+1])
+    #print(ulTh)
+    dlTh = sum(out1[tT+1:])/len(out1[tT+1:])
+    #print(out1[t+1:])
+    #type(out1)
+    #print(out1)
+    Throughput = ((ulTh+dlTh)/1000) 
+    #print(out2)
+  
     Net_Stat["Throughput"] = "{:.2f}".format(Throughput) + 'Mbps'
     #return jsonify(monitor_nf),200
     return Net_Stat

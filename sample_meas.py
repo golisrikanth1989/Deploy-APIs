@@ -35,9 +35,9 @@ print((temp1))
 
 out1 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
 ulTh = out1[0:t+1]
-print(ulTh)
-#dlTh = out1[t+2:]
-print(out1[t+1:])
+#print(ulTh)
+dlTh = out1[t+1:]
+#print(out1[t+1:])
 out2 =sum(out1)/len(out1)
 print(out2)
 """ temp2=json.dumps(temp1)
