@@ -109,18 +109,20 @@ def write_measurements(client,container,cursor,ts):
     IPaddr = get_IPaddressOfUE(client,container.id)
     print(IPaddr)
     if IPaddr != "":
-        str2 = './speedtest-cli --source ' + IPaddr + ' --json --timeout 45'
+        str2 = 'iperf -u -i 1 -fk -B'+ IPaddr+ '-b 125M -c 192.168.72.135 -t 10 | awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
         gnb_name = get_gNB(client,container.id)
         print("GNB name",gnb_name)
         gnb_Container = client.containers.list(filters={"name":gnb_name.strip()})
-        if len(gnb_Container)==0:
-            print ("gNB container not found with given name")
+        
+        if len(container[0].name)==0:
+            print ("UE container not found with given name")
             return
         try:
             run=container.exec_run(['sh', '-c', str2])
             temp1=(run.output.decode("utf-8"))
-            temp2=json.loads(temp1)
-            dl_thp = temp2['download'] # bits per second
+            temp2 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
+            temp2 =sum(temp2)/len(temp2)
+            dl_thp = temp2 # bits per second
             ul_thp = 0#temp2['upload']
             latency = 0#temp2['server']['latency']
             #tx_byte,rx_byte=get_TxRx_Bytes(client,container.name)

@@ -1,7 +1,7 @@
 import docker
 from fastapi import FastAPI, HTTPException, Form, Path, Query
 from enum import Enum
-import packets
+# import packets
 from flask import Flask, request, jsonify
 import urllib, json
 #from fastapi.exception_handlers import (
@@ -18,6 +18,8 @@ import time
 import random
 from pydantic import BaseModel
 
+import threading
+import measurements
 
 ################################################################################################################################################################
 #                                                                Defining Dictionaries for List of Elements                                                    #
@@ -441,48 +443,54 @@ def get_Application_Details()-> dict:
 
 def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Quantity,Cameras_Make: UE_options,Cameras_Quantity,Sensors_Make: UE_options,Sensors_Quantity,AGVs_Make:UE_options,AGVs_Quantity,Actuators_Make:UE_options,Actuators_Quantity,Others_Make:UE_options, Other_Quantity):
     if CN_Make == 'OAI' and RAN_Make == 'OAI':
-        print("Selected OAI CN and RAN Make")
+        print("OAI CN and OAI RAN")
         os.chdir('../')
-        os.chdir('openairinterface5g_wk24')
+        #check if directory already exists
+        if os.path.isdir('openairinterface-5g'):
+            print('True')
+        else:
+            print('False')    
+            os.system('git clone https://github.com/golisrikanth1989/openairinterface-5g')
+        os.chdir('openairinterface-5g')
         os.system('git checkout develop')
-        #os.system('git pull')
+        os.system('git pull')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker ps -aq | xargs docker rm -f')
         time.sleep(30)
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
+            cmd = 'docker-compose -f docker-compose.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb1'
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb1'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-gnb2'
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb2'
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
             # For First gNB
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue1' 
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue1' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
 
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue2' 
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue2' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
             # For Second gNB  
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue3' 
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue3' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
             
-            cmd = 'docker-compose -f docker-compose-manual.yaml up -d oai-nr-ue4' 
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue4' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
@@ -980,7 +988,59 @@ def get_NetworkSummary():
     },    
 )
 
-def get_NetworkStats():
+
+#@app.route('/monitor_nf_stats/<id>')
+#def monitor_nf_stats(id):
+def get_NetworkStats(id):
+    Net_Stat={"Successful Connects":'80%',
+    "Throughput":[],
+    "Latency":'10ms',
+    "Packet Loss":'13%',
+    "Mobility":'80%',
+    }
+    state= 'active'
+    #sucess = 'ok goli'
+    str2 = 'iperf -u -i 1 -fk -B 12.1.1.2 -b 200M -c 192.168.72.135 -t 15 | awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
+    client=docker.from_env()
+    container = client.containers.get(id)
+    run=container.exec_run(['sh', '-c', str2])
+    temp1=(run.decode("utf-8"))
+    print(temp1)
+    temp2 = json.dumps(temp1)
+    out1 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
+    out2 =sum(out1)/(len(out1)*1000)
+    print(out2)
+    #IPaddr = measurements.get_IPaddressOfUE(client,id)
+    #print(IPaddr) 
+    
+    
+    #meas=measurements.get_measurements(client)
+    ##print(meas)
+    #meas1 = measurements.read()
+    """     ul_dict={}
+        dl_dict={}
+        lat_dict={}
+        for row in meas:
+            if row[3] not in ul_dict.keys():
+                ul_dict[row[3]]=[row[4]]
+                dl_dict[row[3]]=[row[5]]
+                lat_dict[row[3]]=[row[6]]
+            else:
+                ul_dict[row[3]].append(row[4])
+                dl_dict[row[3]].append(row[5])
+                lat_dict[row[3]].append(row[6])
+        for key in ul_dict.keys():
+            chart1_dict["data"].append({key:((sum(ul_dict[key])/len(ul_dict[key]))/100000)})
+            chart2_dict["data"].append({key:((sum(dl_dict[key])/len(dl_dict[key]))/100000)})
+            chart3_dict["data"].append({key:((sum(lat_dict[key])/len(lat_dict[key]))/100000)})
+    monitor_nf["NF_stats"]={"chart1":chart1_dict,"chart2":chart2_dict,"chart3":chart3_dict}
+     """
+    Net_Stat["Throughput"] = "{:.2f}".format(out2) + 'Mbps'
+    #return jsonify(monitor_nf),200
+    return Net_Stat
+
+
+""" def get_NetworkStats():
     #dictionaries for json
     Net_Stat={"Successful Connects":'80%',
     "Throughput":'8.1 Gbps',
@@ -989,9 +1049,10 @@ def get_NetworkStats():
     "Mobility":'80%',
     }
     state= 'active'
+
     
     return Net_Stat
-
+ """
 ################################################################################################################################################################
 #                                                                 Inspect Screen APIs                                                                          #
 ################################################################################################################################################################
