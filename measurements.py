@@ -109,22 +109,30 @@ def write_measurements(client,container,cursor,ts):
     IPaddr = get_IPaddressOfUE(client,container.id)
     print(IPaddr)
     if IPaddr != "":
-        str2 = 'iperf -u -i 1 -fk -B'+ IPaddr+ '-b 125M -c 192.168.72.135 -t 10 | awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
+        ue_listen_iperf = 'iperf -s -i 1 -B '+ IPaddr
+        ext_ping_iperf= 'iperf -u -i 1 -fk -b 125M -c '+IPaddr+' -t 10 | awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
+        ue_ping_cmd="ping -I oaitun_ue1 192.168.72.135 -c 10"
+        ext_container=client.containers.list(filters={"name":"rfsim5g-oai-ext-dn"})
+        #'iperf -u -i 1 -fk -B'+ IPaddr+ '-b 125M -c 192.168.72.135 -t 10 | awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
         gnb_name = get_gNB(client,container.id)
         print("GNB name",gnb_name)
         gnb_Container = client.containers.list(filters={"name":gnb_name.strip()})
         
-        if len(container[0].name)==0:
+        if len(container.name)==0:
             print ("UE container not found with given name")
             return
         try:
-            run=container.exec_run(['sh', '-c', str2])
-            temp1=(run.output.decode("utf-8"))
+            ue_iperf_run=container.exec_run(['sh', '-c', ue_listen_iperf])
+            ext_iperf_run=ext_container[0].exec_run(['sh', '-c', ext_ping_iperf])
+            temp1=(ext_iperf_run.output.decode("utf-8"))
             temp2 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
             temp2 =sum(temp2)/len(temp2)
+            ue_ping_run=container.exec_run(['sh', '-c', ue_ping_cmd])
+            result=ue_ping_run.output.decode("utf-8")
+            lat=[int(r.split(' ms')[0]) for r in result.split('time=') if r[0].is_digit()]      
             dl_thp = temp2 # bits per second
             ul_thp = 0#temp2['upload']
-            latency = 0#temp2['server']['latency']
+            latency = sum(lat)/len(lat)#temp2['server']['latency']
             #tx_byte,rx_byte=get_TxRx_Bytes(client,container.name)
             print("Reached here")
         except Exception as e:

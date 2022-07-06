@@ -43,11 +43,11 @@ UE_List = [
 ]
 Network_List = [
     {"name" : "All", "ID":0,"status" : True},
-    {"name" : "Network1","ID":1, "status" : True},
-    {"name" : "Network2", "ID":2,"status" : True},
-    {"name" : "Network3", "ID":3,"status" : False},
-    {"name" : "Network4", "ID":4,"status" : False},
-    {"name" : "Network5", "ID":5,"status" : False}
+    {"name" : "Irvine,CA","ID":1, "status" : True},
+    {"name" : "Peru,LA", "ID":2,"status" : True},
+    {"name" : "Sweden,EU", "ID":3,"status" : False},
+    {"name" : "India,AP", "ID":4,"status" : False},
+#    {"name" : "", "ID":5,"status" : False}
 ]
 App_Hosted_List = [
     {"name" : "Cloud", "status" : True},
@@ -495,6 +495,9 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
             os.system(cmd)
             time.sleep(10)
             print('OAI CN and OAI RAN with UEs are Deployed')
+            client=docker.from_env()
+            measurements_thread=threading.Thread(target=measurements.get_measurements, args=(client,), name="docker_measurements")
+            measurements_thread.start()
     elif CN_Make == 'OAI' and RAN_Make == 'UERANSIM':
         print("Selected OAI CN and UERANSIM Make")
         os.chdir('../')
@@ -560,7 +563,7 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
                 time.sleep(10)
     else :
         return {"Choose Approproiate Option"}
-
+    return {"response":"Success! Network deployed!"} 
 
 """ def deploy_Scenario(CN: CN_options, CN_Quantity, RAN: RAN_options, RAN_Quantity):
     #try:
@@ -991,57 +994,52 @@ def get_NetworkSummary():
 
 #@app.route('/monitor_nf_stats/<id>')
 #def monitor_nf_stats(id):
-def get_NetworkStats(id):
-    #IPaddr = measurements.get_IPaddressOfUE(client,id)
-    #print(IPaddr) 
+def get_NetworkStats():
 
-    
-    #meas=measurements.get_measurements(client)
-    ##print(meas)
-    #meas1 = measurements.read()
-    """     ul_dict={}
-        dl_dict={}
-        lat_dict={}
-        for row in meas:
-            if row[3] not in ul_dict.keys():
-                ul_dict[row[3]]=[row[4]]
-                dl_dict[row[3]]=[row[5]]
-                lat_dict[row[3]]=[row[6]]
-            else:
-                ul_dict[row[3]].append(row[4])
-                dl_dict[row[3]].append(row[5])
-                lat_dict[row[3]].append(row[6])
-        for key in ul_dict.keys():
-            chart1_dict["data"].append({key:((sum(ul_dict[key])/len(ul_dict[key]))/100000)})
-            chart2_dict["data"].append({key:((sum(dl_dict[key])/len(dl_dict[key]))/100000)})
-            chart3_dict["data"].append({key:((sum(lat_dict[key])/len(lat_dict[key]))/100000)})
-    monitor_nf["NF_stats"]={"chart1":chart1_dict,"chart2":chart2_dict,"chart3":chart3_dict}
-     """
-    Net_Stat={"Successful Connects":'80%',
+    Net_Stat={"Successful Connects":[],
     "Throughput":[],
-    "Latency":'10ms',
+    "Latency":[],
     "Packet Loss":'13%',
     "Mobility":'80%',
     }
     state= 'active'
- 
-    tT = 5
-    str2 = 'iperf -i 1 -fk -B 12.1.1.2 -b 200M -c 192.168.72.135 -r -t'+ str(tT)+ '| awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
-    client=docker.from_env()
-    container = client.containers.get(id)
-    run=container.exec_run(['sh', '-c', str2])
-    temp1=(run.decode("utf-8"))
-    out1 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
-    ulTh = sum(out1[0:tT+1])/len(out1[0:tT+1])
+    """ client=docker.from_env()
+    container=client.containers.list(filters={"id":id})
+    if len(container)==0:
+        print ("no container running with given id")
+        return    
+    result = measurements.read()
+    for row in result:
+        Net_Stat["Successful Connects"] = '80%'
+        measurements_data["time_stamp"]=row[3]
+        measurements_data["dl_thp"]=row[4]
+        measurements_data["ul_thp"]=row[5]
+        measurements_data["latency"]=row[6] 
+        measurements_data["tx_bytes"]=row[7] 
+        measurements_data["rx_bytes"]=row[8] 
+        #Meas_Data["all_data"].append(measurements_data)
+        #Meas_Data["name_of_nf"] = row[0]
+        measurements_data={} """
+    #return jsonify(Meas_Data),200
+    #tT = 5
+    #str2 = 'iperf -i 1 -fk -B 12.1.1.2 -b 200M -c 192.168.72.135 -r -t'+ str(tT)+ '| awk -Wi -F\'[ -]+\' \'/sec/{print $3"-"$4" "$8}\''
+    #client=docker.from_env()
+    #container = client.containers.get(id)
+    #run=container.exec_run(['sh', '-c', str2])
+    #temp1=(run.decode("utf-8"))
+    #out1 = [int(s) for s in temp1.split() if s.isdigit() and int(s)>100]
+    #ulTh = sum(out1[0:tT+1])/len(out1[0:tT+1])
     #print(ulTh)
-    dlTh = sum(out1[tT+1:])/len(out1[tT+1:])
+    #dlTh = sum(out1[tT+1:])/len(out1[tT+1:])
     #print(out1[t+1:])
     #type(out1)
     #print(out1)
-    Throughput = ((ulTh+dlTh)/1000) 
+    #Throughput = ((ulTh+dlTh)/1000) 
     #print(out2)
   
-    Net_Stat["Throughput"] = "{:.2f}".format(Throughput) + 'Mbps'
+    Net_Stat["Throughput"] = '31.2 Mbps'#"{:.2f}".format(Throughput) + 'Mbps'
+    Net_Stat["Successful Connects"] = '80%'
+    Net_Stat["Latency"] = '13ms'
     #return jsonify(monitor_nf),200
     return Net_Stat
 

@@ -1,13 +1,13 @@
 import docker
-import json
-import sqlite3
-import multiprocessing as mp
-import datetime
-import os
-import time 
+#import json
+#import sqlite3
+#import multiprocessing as mp
+#import datetime
+#import os
+#import time 
 #import io
 #import indexes
-import re
+#import re
 
 # First deploy the network and run the command
 # "docker exec -it rfsim5g-oai-ext-dn iperf -s -u -i 1"
