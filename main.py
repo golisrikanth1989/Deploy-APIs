@@ -1065,42 +1065,66 @@ def get_NetworkStats():
     #for time in series:    
     #    x.append(pd.date_range(time, freq='D', periods=1).strftime("%Y-%m-%d").tolist())
     #a = pd.to_datetime(series['DatetimeIndex']).dt.date.unique().tolist()
-    random.seed(1)
+    random.seed(43)
+    y =[]
+    for i in range(len(x)):
+        y.append(random.randint(0,100))
+
+    b = {}
     a =[]
-    for _ in range(len(x)):
-        a.append(random.randint(0,100))
+    for i in range(len(x)):
+        #random.seed(1)
+        b['x'] = x[i]
+        b['y'] = y[i]
+        a.append(b)
+
     #a = random.randint(0, 100, size=(len(x)))
     #b= a.tolist() 
-    Plot_Stat["xSuccessful"]= x
-    Plot_Stat["ySuccessful"] = a
+    Plot_Stat["CSuccessful"]= a
+    #Plot_Stat["ySuccessful"] = a
     #a = random.randint(50, 200, size=(len(x)))
     #b= a.tolist() 
-    a=[]
-    for _ in range(len(x)):
-        a.append(random.randint(50,200))
-    Plot_Stat["xThroughput"]= x
-    Plot_Stat["yThroughput"]= a
-    #a = random.randint(10, 15, size=(len(x)))
-    #b= a.tolist() 
-    a=[]
-    for _ in range(len(x)):
-        a.append(random.randint(10,15))
-    Plot_Stat["xLatency"]= x
-    Plot_Stat["yLatency"]= a
-    a=[]
-    for _ in range(len(x)):
-        a.append(random.randint(10,25))
-    #a = random.randint(0, 25, size=(len(x)))
-    #b= a.tolist() 
-    Plot_Stat["xPacket Loss"]= x
-    Plot_Stat["yPacket Loss"]= a
-    a=[]
-    for _ in range(len(x)):
-        a.append(random.randint(50,100))
-    #a = random.randint(50, 100, size=(len(x)))
-    #b= a.tolist()
-    Plot_Stat["xMobility"]= x
-    Plot_Stat["yMobility"]= a
+    y =[]
+    for i in range(len(x)):
+        y.append(random.randint(50,200))
+    b = {}
+    a =[]
+    for i in range(len(x)):
+        b['x'] = x[i]
+        b['y'] = y[i]
+        a.append(b)
+    Plot_Stat["CThroughput"]= a
+
+    y =[]
+    for i in range(len(x)):
+        y.append(random.randint(10,15))
+    b = {}
+    a =[]
+    for i in range(len(x)):
+        b['x'] = x[i]
+        b['y'] = y[i]
+        a.append(b)
+    Plot_Stat["CLatency"]= a
+    y =[]
+    for i in range(len(x)):
+        y.append(random.randint(10,25))
+    b = {}
+    a =[]
+    for i in range(len(x)):
+        b['x'] = x[i]
+        b['y'] = y[i]
+        a.append(b)
+    Plot_Stat["CPacket Loss"]= a
+    y =[]
+    for i in range(len(x)):
+        y.append(random.randint(50,100))
+    b = {}
+    a =[]
+    for i in range(len(x)):
+        b['x'] = x[i]
+        b['y'] = y[i]
+        a.append(b)
+    Plot_Stat["CMobility"]= a
     
     return Net_Stat,Plot_Stat
 
