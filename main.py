@@ -1,3 +1,4 @@
+from re import X
 import docker
 from fastapi import FastAPI, HTTPException, Form, Path, Query
 from enum import Enum
@@ -17,6 +18,8 @@ import subprocess as sp
 import time
 import random
 from pydantic import BaseModel
+import pandas as pd 
+import numpy as np
 
 import threading
 import measurements
@@ -328,7 +331,7 @@ def get_logs(client,id):
     for container in client.containers.list():
         if id in str(container.id):
             logs = container.logs().decode("utf-8")
-            return logs
+            return jsonify(logs),200
 
 def get_console(client,id):
     for container in client.containers.list():
@@ -1002,6 +1005,17 @@ def get_NetworkStats():
     "Packet Loss":'13%',
     "Mobility":'80%',
     }
+    Plot_Stat = {"xSuccessful":[],
+    "ySuccessful":[],
+    "xThroughput":[],
+    "yThroughput":[],
+    "xLatency":[],
+    "yLatency":[],
+    "xPacket Loss":[],
+    "yPacket Loss":[],
+    "xMobility":[],
+    "xMobility":[],
+    }
     state= 'active'
     """ client=docker.from_env()
     container=client.containers.list(filters={"id":id})
@@ -1041,7 +1055,35 @@ def get_NetworkStats():
     Net_Stat["Successful Connects"] = '80%'
     Net_Stat["Latency"] = '13ms'
     #return jsonify(monitor_nf),200
-    return Net_Stat
+    
+    series = pd.date_range(start='2022-06-01', end='2022-06-30', freq='D')
+    print(series)
+    x=[]
+    for time in series:    
+        x.append(pd.date_range(time, freq='D', periods=1).strftime("%Y-%m-%d").tolist())
+    #a = pd.to_datetime(series['DatetimeIndex']).dt.date.unique().tolist()
+    a = np.random.randint(0, 100, size=(len(x)))
+    b= a.tolist() 
+    Plot_Stat["xSuccessful"]= x
+    Plot_Stat["ySuccessful"] = b
+    a = np.random.randint(50, 200, size=(len(x)))
+    b= a.tolist() 
+    Plot_Stat["xThroughput"]= x
+    Plot_Stat["yThroughput"]= b
+    a = np.random.randint(10, 15, size=(len(x)))
+    b= a.tolist() 
+    Plot_Stat["xLatency"]= x
+    Plot_Stat["yLatency"]= b
+    a = np.random.randint(0, 25, size=(len(x)))
+    b= a.tolist() 
+    Plot_Stat["xPacket Loss"]= x
+    Plot_Stat["yPacket Loss"]= b
+    a = np.random.randint(50, 100, size=(len(x)))
+    b= a.tolist()
+    Plot_Stat["xMobility"]= x
+    Plot_Stat["yMobility"]= b
+    
+    return Net_Stat,Plot_Stat
 
 
 """ def get_NetworkStats():
