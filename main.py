@@ -1005,11 +1005,11 @@ def get_NetworkStats():
     "Packet Loss":'13%',
     "Mobility":'80%',
     }
-    Plot_Stat = {"CSuccessful":[],
-    "CThroughput":[],
-    "CLatency":[],
-    "CPacket Loss":[],
-    "CMobility":[],
+    Plot_Stat = {"Successful":[],
+    "Throughput":[],
+    "Latency":[],
+    "Packet Loss":[],
+    "Mobility":[],
     }
     state= 'active'
     """ client=docker.from_env()
@@ -1080,7 +1080,7 @@ def get_NetworkStats():
 
     #a = random.randint(0, 100, size=(len(x)))
     #b= a.tolist() 
-    Plot_Stat["CSuccessful"]= a
+    Plot_Stat["Successful"]= a
     #Plot_Stat["ySuccessful"] = a
     #a = random.randint(50, 200, size=(len(x)))
     #b= a.tolist() 
@@ -1093,7 +1093,7 @@ def get_NetworkStats():
         b['x'] = x[i]
         b['y'] = y[i]
         a.append(b)
-    Plot_Stat["CThroughput"]= a
+    Plot_Stat["Throughput"]= a
 
     y =[]
     for i in range(len(x)):
@@ -1104,7 +1104,7 @@ def get_NetworkStats():
         b['x'] = x[i]
         b['y'] = y[i]
         a.append(b)
-    Plot_Stat["CLatency"]= a
+    Plot_Stat["Latency"]= a
     y =[]
     for i in range(len(x)):
         y.append(random.randint(10,25))
@@ -1114,7 +1114,7 @@ def get_NetworkStats():
         b['x'] = x[i]
         b['y'] = y[i]
         a.append(b)
-    Plot_Stat["CPacket Loss"]= a
+    Plot_Stat["Packet Loss"]= a
     y =[]
     for i in range(len(x)):
         y.append(random.randint(50,100))
@@ -1124,7 +1124,7 @@ def get_NetworkStats():
         b['x'] = x[i]
         b['y'] = y[i]
         a.append(b)
-    Plot_Stat["CMobility"]= a
+    Plot_Stat["Mobility"]= a
     
     return Net_Stat,Plot_Stat
 
@@ -1517,6 +1517,7 @@ def get_AppStats():
 
     y =[]
     for i in range(len(x)):
+        random.seed(43)
         y.append(random.randint(10,15))
     b = {}
     a =[]
@@ -1524,9 +1525,10 @@ def get_AppStats():
         b['x'] = x[i]
         b['y'] = y[i]
         a.append(b)
-    App_Stat["CLatency"]= a
+    App_Stat["Latency"]= a
     y =[]
-    for i in range(len(x)):
+    for _ in range(len(x)):
+        random.seed(43)
         y.append(random.randint(10,25))
     b = {}
     a =[]
@@ -1534,7 +1536,7 @@ def get_AppStats():
         b['x'] = x[i]
         b['y'] = y[i]
         a.append(b)
-    App_Stat["CPacket Loss"]= a
+    App_Stat["Packet Loss"]= a
     
     return App_Stat
 
