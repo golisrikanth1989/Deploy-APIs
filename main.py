@@ -3,7 +3,7 @@ import docker
 from fastapi import FastAPI, HTTPException, Form, Path, Query
 from enum import Enum
 # import packets
-from flask import Flask, request, jsonify
+#from flask import Flask, request, jsonify
 import urllib, json
 #from fastapi.exception_handlers import (
 #    http_exception_handler,
@@ -18,8 +18,8 @@ import subprocess as sp
 import time
 import random
 from pydantic import BaseModel
-import pandas as pd 
-import numpy as np
+#import pandas as pd 
+#import numpy as np
 
 import threading
 import measurements
@@ -1056,32 +1056,56 @@ def get_NetworkStats():
     Net_Stat["Latency"] = '13ms'
     #return jsonify(monitor_nf),200
     
-    series = pd.date_range(start='2022-06-01', end='2022-06-30', freq='D')
-    print(series)
-    x=[]
-    for time in series:    
-        x.append(pd.date_range(time, freq='D', periods=1).strftime("%Y-%m-%d").tolist())
+    series = ['2022-06-01', '2022-06-02', '2022-06-03', '2022-06-04',
+               '2022-06-05', '2022-06-06', '2022-06-07', '2022-06-08',
+               '2022-06-09', '2022-06-10', '2022-06-11', '2022-06-12',
+               '2022-06-13', '2022-06-14', '2022-06-15', '2022-06-16',
+               '2022-06-17', '2022-06-18', '2022-06-19', '2022-06-20',
+               '2022-06-21', '2022-06-22', '2022-06-23', '2022-06-24',
+               '2022-06-25', '2022-06-26', '2022-06-27', '2022-06-28',
+               '2022-06-29', '2022-06-30']
+               #pd.date_range(start='2022-06-01', end='2022-06-30', freq='D')
+    #print(series)
+    x=series
+    #for time in series:    
+    #    x.append(pd.date_range(time, freq='D', periods=1).strftime("%Y-%m-%d").tolist())
     #a = pd.to_datetime(series['DatetimeIndex']).dt.date.unique().tolist()
-    a = np.random.randint(0, 100, size=(len(x)))
-    b= a.tolist() 
+    random.seed(1)
+    a =[]
+    for _ in range(len(x)):
+        a.append(random.randint(0,100))
+    #a = random.randint(0, 100, size=(len(x)))
+    #b= a.tolist() 
     Plot_Stat["xSuccessful"]= x
-    Plot_Stat["ySuccessful"] = b
-    a = np.random.randint(50, 200, size=(len(x)))
-    b= a.tolist() 
+    Plot_Stat["ySuccessful"] = a
+    #a = random.randint(50, 200, size=(len(x)))
+    #b= a.tolist() 
+    a=[]
+    for _ in range(len(x)):
+        a.append(random.randint(50,200))
     Plot_Stat["xThroughput"]= x
-    Plot_Stat["yThroughput"]= b
-    a = np.random.randint(10, 15, size=(len(x)))
-    b= a.tolist() 
+    Plot_Stat["yThroughput"]= a
+    #a = random.randint(10, 15, size=(len(x)))
+    #b= a.tolist() 
+    a=[]
+    for _ in range(len(x)):
+        a.append(random.randint(10,15))
     Plot_Stat["xLatency"]= x
-    Plot_Stat["yLatency"]= b
-    a = np.random.randint(0, 25, size=(len(x)))
-    b= a.tolist() 
+    Plot_Stat["yLatency"]= a
+    a=[]
+    for _ in range(len(x)):
+        a.append(random.randint(10,25))
+    #a = random.randint(0, 25, size=(len(x)))
+    #b= a.tolist() 
     Plot_Stat["xPacket Loss"]= x
-    Plot_Stat["yPacket Loss"]= b
-    a = np.random.randint(50, 100, size=(len(x)))
-    b= a.tolist()
+    Plot_Stat["yPacket Loss"]= a
+    a=[]
+    for _ in range(len(x)):
+        a.append(random.randint(50,100))
+    #a = random.randint(50, 100, size=(len(x)))
+    #b= a.tolist()
     Plot_Stat["xMobility"]= x
-    Plot_Stat["yMobility"]= b
+    Plot_Stat["yMobility"]= a
     
     return Net_Stat,Plot_Stat
 
@@ -1413,7 +1437,7 @@ def get_traffic():
 
 
 #uvicorn.run(app)
-#uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
+uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
