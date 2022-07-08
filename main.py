@@ -16,7 +16,7 @@ import uvicorn
 import sys, os
 import subprocess as sp
 import time
-import random
+from random import randint
 from pydantic import BaseModel
 #import pandas as pd 
 #import numpy as np
@@ -31,7 +31,7 @@ CN_List = [
     {"name" : "OAI", "status" : True},
     {"name" : "free5GC", "status" : True},
     {"name" : "Azure Private 5G Core", "status" : False},
-    {"name" : "free5GC", "status" : False}
+    {"name" : "Open5GS", "status" : False}
 ]
 RAN_List = [
     {"name" : "OAI", "status" : True},
@@ -57,12 +57,29 @@ App_Hosted_List = [
     {"name" : "Internal", "status" : True},
     {"name" : "External", "status" : True}
 ]
-App_Details = [
-    {"Application Name" : "Pick-N-Pack", "status" : True},
-    {"Input1" : "Weight Sensor", "Input2":"Video Stream","status" : True},
-    {"Output1" : "Video Analytics/Dashboard", "Output2":"Actuator","status" : True}
-]
+App_Details = {
+    "Application Name" : "Pick-N-Pack", "status" : True,
+    "details" : {
+       "Input" : {
+                    "Count" : 2,
+                    "Input1" : "Weight Sensor",
+                    "Input2": "Video Stream",
+                },
+        "Output" : {
+                    "Count" : 2,
+                    "Output1" : "Video Analytics/Dashboard",
+                    "Output2": "Actuator",
+                }
+    }                
+}
 
+Device_List = [
+    {"name" : "oai-ue1", "Type" : "Camera"},
+    {"name" : "oai-ue2", "Type" : "Sensors"},
+    {"name" : "oai-ue3", "Type" : "AGVs"},
+    {"name" : "oai-ue4", "Type" : "Actuators"},
+    {"name" : "oai-ue5", "Type" : "Others"}
+]
 ################################################################################################################################################################
 #                                                                        Input Options for APIs                                                                #
 ################################################################################################################################################################
@@ -95,6 +112,12 @@ class APP_options(str, Enum):
     OAI = "Internal"
     Nokia = "External"
 
+class Device_options(str, Enum):
+    Device1 = "oai-ue1"
+    Device2 = "oai-ue2"
+    Device3 = "oai-ue3"
+    Device4 = "oai-ue4"
+    Device5 = "oai-ue5"
 ################################################################################################################################################################
 #                                                                             Tags for APIs                                                                    #
 ################################################################################################################################################################
@@ -404,9 +427,13 @@ def get_Network_List()-> dict:
 
 @app.get('/ApplicationDetails/', tags = ["Get Application Details"],status_code=200)
 
-def get_Application_Details()-> dict:
+def get_Application_Details(URL)-> dict:
     return {"Application Details": App_Details}    
 
+@app.get('/ApplicationDeviceOptions/', tags = ["Get Application Device Options"],status_code=200)
+
+def get_Application_DeviceOptions()-> dict:
+    return {"Application Device Options": Device_List} 
 ################################################################################################################################################################
 #                                                                Network Deploy & Undeploy APIs                                                                #
 ################################################################################################################################################################
@@ -459,41 +486,46 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         os.system('git pull')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker ps -aq | xargs docker rm -f')
-        time.sleep(30)
+        time.sleep(5)
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
             cmd = 'docker-compose -f docker-compose.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
-            time.sleep(10)
+            time.sleep(5)
 
             cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb1'
             print(cmd)
             os.system(cmd)
-            time.sleep(10)
+            time.sleep(5)
 
             cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb2'
             print(cmd)
             os.system(cmd)
-            time.sleep(10)
+            time.sleep(5)
             
             # For First gNB
             cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue1' 
             print(cmd)
             os.system(cmd)
-            time.sleep(10)
+            time.sleep(5)
 
             cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue2' 
             print(cmd)
             os.system(cmd)
-            time.sleep(10)
+            time.sleep(5)
             
             # For Second gNB  
             cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue3' 
             print(cmd)
             os.system(cmd)
-            time.sleep(10)
+            time.sleep(5)
             
             cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue4' 
+            print(cmd)
+            os.system(cmd)
+            time.sleep(5)
+                        
+            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue5' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
@@ -1065,10 +1097,10 @@ def get_NetworkStats():
     #for time in series:    
     #    x.append(pd.date_range(time, freq='D', periods=1).strftime("%Y-%m-%d").tolist())
     #a = pd.to_datetime(series['DatetimeIndex']).dt.date.unique().tolist()
-    random.seed(43)
+    #random.seed(43)
     y =[]
     for i in range(len(x)):
-        y.append(random.randint(0,100))
+        y.append(randint(0,100))
 
     b = {}
     a =[]
@@ -1076,7 +1108,7 @@ def get_NetworkStats():
         #random.seed(1)
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
 
     #a = random.randint(0, 100, size=(len(x)))
     #b= a.tolist() 
@@ -1086,44 +1118,44 @@ def get_NetworkStats():
     #b= a.tolist() 
     y =[]
     for i in range(len(x)):
-        y.append(random.randint(50,200))
+        y.append(randint(50,200))
     b = {}
     a =[]
     for i in range(len(x)):
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
     Plot_Stat["Throughput"]= a
 
     y =[]
     for i in range(len(x)):
-        y.append(random.randint(10,15))
+        y.append(randint(10,15))
     b = {}
     a =[]
     for i in range(len(x)):
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
     Plot_Stat["Latency"]= a
     y =[]
     for i in range(len(x)):
-        y.append(random.randint(10,25))
+        y.append(randint(10,25))
     b = {}
     a =[]
     for i in range(len(x)):
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
     Plot_Stat["Packet Loss"]= a
     y =[]
     for i in range(len(x)):
-        y.append(random.randint(50,100))
+        y.append(randint(50,100))
     b = {}
     a =[]
     for i in range(len(x)):
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
     Plot_Stat["Mobility"]= a
     
     return Net_Stat,Plot_Stat
@@ -1188,7 +1220,7 @@ def get_Inspect_details():
         elif 'ext-dn' in container.name:
             continue
         else:
-            Inspect.append(container.name[12:])
+            Inspect.append(container.name)
             Cid.append(container.id)
             Count = Count+1        
     if Inspect==[]:
@@ -1279,6 +1311,8 @@ def get_Console(id):
    }
     client=docker.from_env()
     container=client.containers.list(filters={"id":id})
+    #container = client.containers.get(id)
+    run=container.exec_run(['sh', '-c', str2])
     if len(container)==0:
         print ("no container running with given id")
         raise HTTPException(status_code=404, detail="There is no container running with the given id.")
@@ -1453,8 +1487,6 @@ def get_traffic():
 
 ######################################################################################################################################################
 
-###########################################################################
-
 @app.get(
     '/get_AppStats/', 
     tags=["Get Application Statistics"],
@@ -1489,11 +1521,11 @@ def get_traffic():
 
 #@app.route('/monitor_nf_stats/<id>')
 #def monitor_nf_stats(id):
-def get_AppStats():
+def get_AppStats(Input1:Device_options,Input2:Device_options,Output1:Device_options,Output2:Device_options):
 
     App_Stat = {
-    "CLatency":[],
-    "CPacket Loss":[],
+    "Latency":[],
+    "Packet Loss":[],
     }
     state= 'active'
     
@@ -1513,29 +1545,28 @@ def get_AppStats():
     #for time in series:    
     #    x.append(pd.date_range(time, freq='D', periods=1).strftime("%Y-%m-%d").tolist())
     #a = pd.to_datetime(series['DatetimeIndex']).dt.date.unique().tolist()
-    random.seed(43)
-
+    #y = random.sample(range(0,35), len(x))
     y =[]
-    for i in range(len(x)):
-        random.seed(43)
-        y.append(random.randint(10,15))
+    for i in range(0,len(x)):
+        y.append(randint(10,15))
+        
     b = {}
     a =[]
-    for i in range(len(x)):
+    for i in range(0,len(x)):
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
     App_Stat["Latency"]= a
     y =[]
-    for _ in range(len(x)):
-        random.seed(43)
-        y.append(random.randint(10,25))
+    for _ in range(0,len(x)):
+        #random.seed(43)
+        y.append(randint(10,25))
     b = {}
     a =[]
-    for i in range(len(x)):
+    for i in range(0,len(x)):
         b['x'] = x[i]
         b['y'] = y[i]
-        a.append(b)
+        a.append(b.copy())
     App_Stat["Packet Loss"]= a
     
     return App_Stat
