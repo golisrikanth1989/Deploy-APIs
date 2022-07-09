@@ -476,19 +476,23 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         print("OAI CN and OAI RAN")
         os.chdir('../')
         #check if directory already exists
-        if os.path.isdir('openairinterface-5g'):
-            print('True')
-        else:
-            print('False')    
-            os.system('git clone https://github.com/golisrikanth1989/openairinterface-5g')
+        # if os.path.isdir('openairinterface-5g'):
+        #     print('True')
+        # else:
+        #     print('False')    
+        #     os.system('git clone https://github.com/golisrikanth1989/openairinterface-5g')
         os.chdir('openairinterface-5g')
-        os.system('git checkout develop')
-        os.system('git pull')
+        # os.system('git checkout develop')
+        # os.system('git pull')
         os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker ps -aq | xargs docker rm -f')
         time.sleep(5)
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
+            
+            cmd = 'docker-compose -f docker-compose.yaml up -d  '
+            os.system(cmd)
+
             cmd = 'docker-compose -f docker-compose.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
             time.sleep(5)
@@ -1573,7 +1577,7 @@ def get_AppStats(Input1:Device_options,Input2:Device_options,Output1:Device_opti
 
 
 #uvicorn.run(app)
-#uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
+uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
