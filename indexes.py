@@ -44,12 +44,11 @@ def write_ip_index_table(client):
     make_index_table()
 
     for container in client.containers.list():
-        if 'gnb' in container.name:
-            ip_address=client.api.inspect_container(container.id)['NetworkSettings']['Networks']['rfsim5g-oai-public-net']['IPAddress']
-            print(ip_address)
-            if ip_address!= "":
-                try:
-                    cursor.execute("INSERT INTO ip_index (c_name,c_id,c_ip) VALUES ( ?, ?, ?)", (container.name, container.id, ip_address) )
-                except :
-                    print ("ip_index insert not executing")
+        ip_address=client.api.inspect_container(container.id)['NetworkSettings']['Networks']['rfsim5g-oai-public-net']['IPAddress']
+        print(ip_address)
+        if ip_address!= "":
+            try:
+                cursor.execute("INSERT INTO ip_index (c_name,c_id,c_ip) VALUES ( ?, ?, ?)", (container.name, container.id, ip_address) )
+            except :
+                print ("ip_index insert not executing")
     return

@@ -23,6 +23,7 @@ from pydantic import BaseModel
 
 import threading
 import measurements
+import packets
 
 ################################################################################################################################################################
 #                                                                Defining Dictionaries for List of Elements                                                    #
@@ -490,7 +491,7 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
             
-            cmd = 'docker-compose -f docker-compose.yaml up -d  '
+            cmd = 'docker-compose -f docker-compose.yaml up -d  tcpdump'
             os.system(cmd)
 
             cmd = 'docker-compose -f docker-compose.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
@@ -1279,6 +1280,42 @@ def get_Logs(id):
     return Logs
 ######################################################################################################################################################
 
+######################################################################################################################################################
+@app.get(
+    '/get_packets/<id>', 
+    tags=["Get packets"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid parameters! Please use valid parameters."}
+                }
+            },
+        },               
+    },    
+)
+def get_packets(id):
+    client=docker.from_env()
+    container=client.containers.list(filters={"id":id})
+    return {"packet data": packets.get_packets(container[0].name)}
+######################################################################################################################################################
 @app.get(
     '/get_console/<id>', 
     tags=["Get Console"],
@@ -1326,44 +1363,7 @@ def get_Console(id):
 
 
 ######################################################################################################################################################
-@app.get(
-    '/get_packets/<id>', 
-    tags=["Get Packets"],
-    responses={
-        404: {
-            "description": "The requested resource was not found",
-            "content": {
-                "application/json": {
-                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
-                }
-            },
-        },    
-        200: {
-            "description": "Successful response.",
-            "content": {
-                "application/json": {
-                    "example": {"response":"Success!"}
-                }
-            },
-        },
-        422: {
-            "description": "Validation error",
-            "content": {
-                "application/json": {
-                    "example": {"response":"Invalid parameters! Please use valid parameters."}
-                }
-            },
-        },               
-    },    
-)
-#@app.route('/monitor_nf_packets/<id>')
-def get_packets(id):
-    #dictionaries for json
-    monitor_nf={"NF_packets":''}
-    client=docker.from_env()
-    container=client.containers.list(filters={"id":id})
-    monitor_nf["NF_packets"]=packets.get_packets(container[0].name)
-    return jsonify(monitor_nf)
+
 ######################################################################################################################################################
 @app.get(
     '/get_NetworkAttentions/', 
