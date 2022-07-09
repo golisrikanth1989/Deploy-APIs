@@ -60,6 +60,16 @@ def make_meas_table():
     sql="CREATE TABLE measurements (ue_name TEXT NOT NULL, id TEXT NOT NULL, gnb_name TEXT NOT NULL, time_stamp TEXT NOT NULL, DL_Thp REAL, UL_Thp REAL, Latency REAL, Tx_Bytes REAL, Rx_Bytes REAL)"
     cursor.execute(sql)
     return cursor
+
+def make_packet_table():
+    conn = get_db()
+    cursor=conn.cursor()
+    """Clear existing data and create new table for measurements"""
+    sql = "DROP TABLE IF EXISTS packets"
+    cursor.execute(sql)
+    sql="CREATE TABLE measurements (c_name TEXT NOT NULL, id TEXT NOT NULL, gnb_name TEXT NOT NULL, time_stamp TEXT NOT NULL, DL_Thp REAL, UL_Thp REAL, Latency REAL, Tx_Bytes REAL, Rx_Bytes REAL)"
+    cursor.execute(sql)
+    return cursor
     
 def if_table_exists(cursor,table_name):
     sql="SELECT name FROM sqlite_master WHERE type='table' AND name='"+table_name+"'; "
@@ -243,6 +253,7 @@ def get_PingLatency(client,name):
     except: 
         print ("Error in running Ping command")
     return latency_values,avg_latency
+
 
 def read_actions():
     output={'action_button':'no',"action_button_text":''}

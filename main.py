@@ -491,8 +491,8 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         for i in range(int(CN_Quantity)):
             cn_str = "cn" + str(i+1)
             
-            cmd = 'docker-compose -f docker-compose.yaml up -d  tcpdump'
-            os.system(cmd)
+            # cmd = 'docker-compose -f docker-compose.yaml up -d  tcpdump'
+            # os.system(cmd)
 
             cmd = 'docker-compose -f docker-compose.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
