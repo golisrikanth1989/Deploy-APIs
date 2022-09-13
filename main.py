@@ -74,19 +74,41 @@ App_Hosted_List = [
 #     }                
 # }
 
+# App_Details = {
+#     "Application Name" : "Pick-N-Pack", "status" : True,
+#     "details" : {
+#        "inputs" : [
+#                     { "name": "Weight Sensor","type":"sensor"},
+#                     { "name": "Video Stream","type":"camera"}
+#                 ],
+#        "outputs" : [
+#                     { "name": "Video Analytics/Dashboard", "type": "link" },
+#                     { "name": "Actuator"}
+#                 ]
+#     }                
+# }
+
+
 App_Details = {
-    "Application Name" : "Pick-N-Pack", "status" : True,
-    "details" : {
-       "inputs" : [
-                    { "input1": "Weight Sensor" },
-                    { "input2": "Video Stream"}
-                ],
-       "outputs" : [
-                    { "output1": "Video Analytics/Dashboard" },
-                    { "output2": "Actuator"}
-                ]
-    }                
-}
+      "Application Name": "Track-N-Label",
+      "status": "true",
+      "details": {
+        "inputs": [
+          {
+            "name": "Video Stream",
+            "type": "dropdown"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Video Analytics/Dashboard",
+            "type": "link",
+            "url": "https://track-n-label.webflow.io"
+          }
+        ]
+      }
+    }
+
 
 
 Device_List = [
