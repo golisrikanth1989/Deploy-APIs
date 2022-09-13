@@ -58,21 +58,36 @@ App_Hosted_List = [
     {"name" : "Internal", "status" : True},
     {"name" : "External", "status" : True}
 ]
+# App_Details = {
+#     "Application Name" : "Pick-N-Pack", "status" : True,
+#     "details" : {
+#        "inputs" : {
+#                     "Count" : 2,
+#                     "Input1" : "Weight Sensor",
+#                     "Input2": "Video Stream",
+#                 },
+#         "outputs" : {
+#                     "Count" : 2,
+#                     "Output1" : "Video Analytics/Dashboard",
+#                     "Output2": "Actuator",
+#                 }
+#     }                
+# }
+
 App_Details = {
     "Application Name" : "Pick-N-Pack", "status" : True,
     "details" : {
-       "Input" : {
-                    "Count" : 2,
-                    "Input1" : "Weight Sensor",
-                    "Input2": "Video Stream",
-                },
-        "Output" : {
-                    "Count" : 2,
-                    "Output1" : "Video Analytics/Dashboard",
-                    "Output2": "Actuator",
-                }
+       "inputs" : [
+                    { "input1": "Weight Sensor" },
+                    { "input2": "Video Stream"}
+                ],
+       "outputs" : [
+                    { "output1": "Video Analytics/Dashboard" },
+                    { "output2": "Actuator"}
+                ]
     }                
 }
+
 
 Device_List = [
     {"name" : "oai-ue1", "Type" : "Camera"},
@@ -1117,7 +1132,7 @@ def get_NetworkStats():
 
     #a = random.randint(0, 100, size=(len(x)))
     #b= a.tolist() 
-    Plot_Stat["Successful"]= a
+    Plot_Stat["Successful Connects"]= a
     #Plot_Stat["ySuccessful"] = a
     #a = random.randint(50, 200, size=(len(x)))
     #b= a.tolist() 
@@ -1577,7 +1592,7 @@ def get_AppStats(Input1:Device_options,Input2:Device_options,Output1:Device_opti
 
 
 #uvicorn.run(app)
-uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
+uvicorn.run(app, host = "0.0.0.0", port = 3002, log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()
