@@ -227,7 +227,11 @@ tags_metadata = [
     {
         "name": "Get Network Issues and Resolving Actions",
         "description": "Get Packets of the container with containerid mentioned.",
-    },               
+    },     
+    {
+        "name": "SignIn",
+        "description": "Authenticating for accessinng the simulator app.",
+    },           
 ]                        
 
 app = FastAPI(
@@ -472,6 +476,51 @@ def get_Application_Details(URL)-> dict:
 
 def get_Application_DeviceOptions()-> dict:
     return {"Application Device Options": Device_List} 
+
+################################################################################################################################################################
+#                                                                 Authentication APIs                                                                       #
+################################################################################################################################################################
+
+@app.get(
+    "/SignIn/{Name}", 
+    tags=["SignIn"], 
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"You are ready to go!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid Credentials! Please check and enter correctly."}
+                }
+            },
+        },        
+    },
+)
+
+####################################################################################################################
+
+def SignIn(Name,Password):
+    if Name == 'Dolcera' and Password == 'Dolcera@123':
+        return {"response":"You are ready to go for deployment!"} 
+    else :
+        return {"Invalid Credentials! Please check and enter correctly"}
+    
+
 ################################################################################################################################################################
 #                                                                Network Deploy & Undeploy APIs                                                                #
 ################################################################################################################################################################
