@@ -293,6 +293,11 @@ def pop_latency():
             cursor.execute(sql)
             return
 
+#############################################################################################################################################
+
+
+
+
 #client=docker.from_env()
 #id = "19f0f29cfbc11fd4464d5dde07d8c68882e4ad41b55ed1f228ce383ebc85072a"
 #get_num_ActiveUEs(client)

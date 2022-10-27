@@ -1,10 +1,11 @@
 from re import X
 import docker
-from fastapi import FastAPI, HTTPException, Form, Path, Query
+from fastapi import FastAPI, HTTPException, Form, Path, Query, Depends
 from enum import Enum
 # import packets
 #from flask import Flask, request, jsonify
 import urllib, json
+from typing import Optional
 #from fastapi.exception_handlers import (
 #    http_exception_handler,
 #    request_validation_exception_handler,
@@ -14,7 +15,7 @@ import urllib, json
 #from fastapi.responses import PlainTextResponse
 import uvicorn
 import sys, os
-import subprocess as sp
+import subprocess
 import time
 from random import randint
 from pydantic import BaseModel
@@ -156,6 +157,17 @@ class Device_options(str, Enum):
     Device3 = "oai-ue3"
     Device4 = "oai-ue4"
     Device5 = "oai-ue5"
+
+class RAN_Parameters(BaseModel):
+    Band: Optional[str] = '78'
+    AMF_IP:Optional[str] = '192.168.71.132'
+    MCC: Optional[str] = '001'
+    MNC: Optional[str] = '01'
+    TAC: Optional[str] = '1'
+    SST: Optional[str] = '1'
+    SD: Optional[str] = '1'
+    Gain: Optional[str] = '80'
+
 ################################################################################################################################################################
 #                                                                             Tags for APIs                                                                    #
 ################################################################################################################################################################
@@ -231,7 +243,11 @@ tags_metadata = [
     {
         "name": "SignIn",
         "description": "Authenticating for accessinng the simulator app.",
-    },           
+    },  
+    {
+        "name": "Get RAN Parameters",
+        "description": "Get Access Point parameters for Deploying.",
+    },          
 ]                        
 
 app = FastAPI(
@@ -249,6 +265,82 @@ app = FastAPI(
 ################################################################################################################################################################
 #                                                                       Functions for APIs                                                                     #
 ################################################################################################################################################################
+# Functions
+def write_var_to_file(config_file: str, variable_name: str, variable_content: str) -> None:
+    from typing import TextIO, List
+    urls: TextIO = open(config_file, 'r')
+    lines: List = urls.readlines()  # read all the lines of txt
+    urls.close()
+
+    for index, line in enumerate(lines):  # iterate over each line
+        line_split: List[str] = line.split('=')
+        var_name: str = line_split[0].strip()  # use strip() to remove empty space
+        if var_name == variable_name:
+            var_value: str = variable_content + ";\n"
+            line: str = F"{var_name} = {var_value}"
+
+        lines[index] = line
+
+    with open(config_file, 'w') as urls:
+        urls.writelines(lines)  # save all the lines
+
+    return {F"{var_name} = {var_value}"}
+
+
+
+def run_command(command):
+    print(subprocess.check_output('pwd'))
+    #cmd1 = subprocess.Popen(['echo',sudo_password], stdout=subprocess.PIPE)
+#   popen = subprocess.Popen(['sudo','-S'] + args, stdin=cmd1.stdout, stdout=subprocess.PIPE)
+    process = subprocess.Popen(command,stdout=subprocess.PIPE,preexec_fn=os.setpgrp)
+    count = 0
+    sucess = 0
+    while True:
+        output = process.stdout.readline()
+        if output == '' and process.poll() is not None:
+            break
+        if output:
+            print(output.strip())
+            if 'Frame.Slot' in str(output):
+                count+=1
+            if 'PDUSESSIONSetup successful message' in str(output):
+                sucess = 1
+        if count>2:
+            #count = 0
+            print('CMD is closed')
+            pgid = os.getpgid(process.pid)
+            print(pgid)
+            os.system("sudo pkill -9 -P " + str(pgid))
+            #subprocess.check_output("sudo pkill {}".format(pgid))
+            #process.kill()
+            #break
+            return 'Failure'
+
+        if sucess == 1:
+            #sucess = 0
+            pgid = os.getpgid(process.pid)
+            print(pgid)
+            os.system("sudo pkill -9 -P " + str(pgid))
+            return 'success'
+
+def Deploy_gNB(command):
+    print(subprocess.check_output('pwd'))
+    #cmd1 = subprocess.Popen(['echo',sudo_password], stdout=subprocess.PIPE)
+#   popen = subprocess.Popen(['sudo','-S'] + args, stdin=cmd1.stdout, stdout=subprocess.PIPE)
+    process = subprocess.Popen(command,stdout=subprocess.PIPE)
+    count = 0
+    sucess = 0
+    while True:
+        output = process.stdout.readline()
+        if output == '' and process.poll() is not None:
+            break
+        if output:
+            print(output.strip())
+            return 'Callibrated and Deployed Successfully'
+
+
+
+
 
 def num_PDUsessions(client,id):
     for container in client.containers.list():
@@ -520,6 +612,166 @@ def SignIn(Name,Password):
     else :
         return {"Invalid Credentials! Please check and enter correctly"}
     
+
+################################################################################################################################################################
+#                                                                 Authentication APIs                                                                       #
+################################################################################################################################################################
+
+@app.get(
+    "/GetRANParameters", 
+    tags=["Get RAN Parameters"], 
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Sucessfully Deployed Access Points"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid Parameters! Please check and enter correctly."}
+                }
+            },
+        },        
+    },
+)
+
+####################################################################################################################
+
+def GetRANParameters():
+    os.chdir('/home/dolcera/5GTestbed/openairinterface5g/doc/tutorial_resources')
+    #cmd = 'docker-compose -f docker-compose-basic-nrf down'
+    #os.system(cmd)
+    #time.sleep(3)
+    cmd = 'docker-compose -f docker-compose-basic-nrf.yaml up -d mysql oai-nrf oai-udr oai-udm oai-ausf oai-amf oai-smf oai-spgwu oai-ext-dn'
+    os.system(cmd)
+    time.sleep(5)
+    RAN_Parameters = {
+    "Band"  :[],
+    "AMF_IP":[],
+    "MCC"   :[],
+    "MNC"   :[],
+    "TAC"   :[],
+    "SST"   :[],
+    "SD"    :[],
+    "Gain"  :[],    
+    }
+    state= 'active'
+    IP = '192.168.70.132'
+    RAN_Parameters["Band"] = '78'
+    RAN_Parameters["AMF_IP"] = f'"{IP}"'
+    RAN_Parameters["MCC"] = '001'
+    RAN_Parameters["MNC"] = '01'
+    RAN_Parameters["TAC"] = '1'
+    RAN_Parameters["SST"] = '1'
+    RAN_Parameters["SD"] = '1'
+    RAN_Parameters["Gain"] = '40'
+    return RAN_Parameters
+
+################################################################################################################################################################
+#                                                                 Realtime Accesspoint Deploy API                                                                       #
+################################################################################################################################################################
+
+@app.get(
+    "/RAN_Deploy", 
+    tags=["RAN Deployment"], 
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found"}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Sucessfully Deployed Access Points"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid Parameters! Please check and enter correctly."}
+                }
+            },
+        },        
+    },
+)
+
+####################################################################################################################
+
+def RAN_Deploy(params=Depends(RAN_Parameters)):
+    #print(RAN_Parameters)
+    os.chdir('/home/dolcera/5GTestbed/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF')
+    AMF_IPc = f'"{params.AMF_IP}"'
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="dl_frequencyBand", variable_content=params.Band)
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ul_frequencyBand", variable_content=params.Band)
+    #write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ipv4", variable_content=AMF_IPc)
+
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="mcc", variable_content=params.MCC)
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="mnc", variable_content=params.MNC)
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="tracking_area_code", variable_content=params.TAC)
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="sst", variable_content=params.SST)
+    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="sd", variable_content=params.SD)
+    
+    os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
+
+    #cmd = 'sudo ./nr-softmodem -O ../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf --sa -E --continuous-tx &'
+    #os.system(cmd)
+    #Sudo_Pass = 'dOLCERA@123'
+    #os.system('echo %s|sudo -S %s' % (Sudo_Pass, cmd))
+    time.sleep(3)
+
+    Gain = [60,80,90,100]
+    args = ["sudo","./nr-softmodem", "-O","../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf", "--sa", "-E", "--continuous-tx"]
+
+    for G in Gain:
+        for x in range(100):
+            print(G)  
+        os.chdir('/home/dolcera/5GTestbed/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF')
+        print(subprocess.check_output('pwd'))
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="max_rxgain", variable_content=str(G))
+        os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
+        print(subprocess.check_output('pwd'))
+        outcom = run_command(args)
+        #time.sleep(5)
+         
+        if outcom == 'success':
+            os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
+            print(subprocess.check_output('pwd'))
+            Sel_Gain = G
+            Out = Deploy_gNB(args) 
+            return f'Deployed Sucessfully with Gain {Sel_Gain}'
+        else:
+            print('Callibrating Please wait for some time')
+            #return f'Not tuned properly rescan once again'
+            #result = "Deployed Sucessfully"
+            #return result
+
+
+
+        result = "Deployed Sucessfully"
+        return result #templates.TemplateResponse('index.html', context={'request': request, 'result': result})
+
+
+
 
 ################################################################################################################################################################
 #                                                                Network Deploy & Undeploy APIs                                                                #
@@ -954,9 +1206,9 @@ def get_RAN_details():
     for container in client.containers.list():
         if 'gnb' in container.name:
             if 'oai' in container.name:
-                RAN.append('OAI')
+                RAN.append('OAI-SIM')
             else:
-                RAN.append('UERANSIM')  
+                RAN.append('OAI-AP')  
     if RAN==[]:
         raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                                  
     RAN_Data["make_of_ran"]=RAN
@@ -1369,7 +1621,7 @@ def get_Logs(id):
 ######################################################################################################################################################
 @app.get(
     '/get_packets/<id>', 
-    tags=["Get packets"],
+    tags=["Get Packets"],
     responses={
         404: {
             "description": "The requested resource was not found",
