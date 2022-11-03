@@ -6,6 +6,7 @@ from enum import Enum
 #from flask import Flask, request, jsonify
 import urllib, json
 from typing import Optional
+import logging
 #from fastapi.exception_handlers import (
 #    http_exception_handler,
 #    request_validation_exception_handler,
@@ -25,7 +26,7 @@ from pydantic import BaseModel
 import threading
 import measurements
 import packets
-
+from fastapi.encoders import jsonable_encoder
 ################################################################################################################################################################
 #                                                                Defining Dictionaries for List of Elements                                                    #
 ################################################################################################################################################################
@@ -266,6 +267,35 @@ app = FastAPI(
 #                                                                       Functions for APIs                                                                     #
 ################################################################################################################################################################
 # Functions
+def Config_Status(Config_Step:str):
+    os.chdir('/home/dolcera/5GTestbed/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF')
+    pwd=os.getcwd()
+    print(pwd)
+    msg_str = []
+    with open("gnb_5fi_b210.conf",'r') as f:
+        for line in f:
+            if "mcc" in line and Config_Step == '1':
+                print("Configuring Network Codes")
+                msg_str = "Configuring Network Codes"
+                time.sleep(1)
+            elif "sst" in line and Config_Step == '2':
+                print("Configuring Slice")
+                msg_str = "Configuring Slice"
+                time.sleep(1)
+            elif "Physical" in line and Config_Step == '3': 
+                print("Configuring Cell with Band and Carrier Frequencies")
+                msg_str = "Configuring Cell with Band and Carrier Frequencies"   
+            elif "NETWORK_INTERFACES" in line and Config_Step == '4':
+                print("Configured AMF IP Address")
+                msg_str = "Configured AMF IP Address"
+            elif "max_rxgain" in line and Config_Step == '5':
+                print("Tuning the Antenna Transmit/Receive Power")
+                msg_str = "Tuning the Antenna Transmit/Receive Power"    
+    return msg_str
+
+
+
+
 def write_var_to_file(config_file: str, variable_name: str, variable_content: str) -> None:
     from typing import TextIO, List
     urls: TextIO = open(config_file, 'r')
@@ -752,22 +782,25 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
         print(subprocess.check_output('pwd'))
         outcom = run_command(args)
         #time.sleep(5)
-         
+        logging.basicConfig(filename="AP_Update.txt", level=logging.DEBUG,
+                    format="%(asctime)s %(message)s", filemode="w")
         if outcom == 'success':
             os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
             print(subprocess.check_output('pwd'))
             Sel_Gain = G
-            Out = Deploy_gNB(args) 
-            return f'Deployed Sucessfully with Gain {Sel_Gain}'
+            Out = Deploy_gNB(args)
+            logging.debug("Deployed Successfully")  
+            result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
         else:
             print('Callibrating Please wait for some time')
-            #return f'Not tuned properly rescan once again'
+            logging.debug("Callibrating Please wait for some time")
+            result  = 'Not tuned properly rescan once again'
             #result = "Deployed Sucessfully"
             #return result
 
 
 
-        result = "Deployed Sucessfully"
+        #result = "Deployed Sucessfully"
         return result #templates.TemplateResponse('index.html', context={'request': request, 'result': result})
 
 
@@ -820,10 +853,10 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         # else:
         #     print('False')    
         #     os.system('git clone https://github.com/golisrikanth1989/openairinterface-5g')
-        os.chdir('openairinterface-5g')
+        os.chdir('Docker-Prac-USRP')
         # os.system('git checkout develop')
         # os.system('git pull')
-        os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
+        #os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
         os.system('docker ps -aq | xargs docker rm -f')
         time.sleep(5)
         for i in range(int(CN_Quantity)):
@@ -832,43 +865,43 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
             # cmd = 'docker-compose -f docker-compose.yaml up -d  tcpdump'
             # os.system(cmd)
 
-            cmd = 'docker-compose -f docker-compose.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d  mysql oai-nrf oai-amf oai-smf oai-spgwu oai-ext-dn'
             os.system(cmd)
             time.sleep(5)
 
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb1'
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-gnb1'
             print(cmd)
             os.system(cmd)
             time.sleep(5)
 
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb2'
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-gnb2'
             print(cmd)
             os.system(cmd)
             time.sleep(5)
             
             # For First gNB
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue1' 
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue1' 
             print(cmd)
             os.system(cmd)
             time.sleep(5)
 
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue2' 
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue2' 
             print(cmd)
             os.system(cmd)
             time.sleep(5)
             
             # For Second gNB  
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue3' 
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue3' 
             print(cmd)
             os.system(cmd)
             time.sleep(5)
             
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue4' 
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue4' 
             print(cmd)
             os.system(cmd)
             time.sleep(5)
                         
-            cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue5' 
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue5' 
             print(cmd)
             os.system(cmd)
             time.sleep(10)
@@ -1651,8 +1684,12 @@ def get_Logs(id):
 )
 def get_packets(id):
     client=docker.from_env()
+    monitor_nf={"NF_packets":''}
     container=client.containers.list(filters={"id":id})
-    return {"packet data": packets.get_packets(container[0].name)}
+    monitor_nf["NF_packets"]=packets.get_packets(container[0].name)
+    return jsonable_encoder(monitor_nf),200
+    #container=client.containers.list(filters={"id":id})
+    #return {"packet data": packets.get_packets(container[0].name)}
 ######################################################################################################################################################
 @app.get(
     '/get_console/<id>', 
@@ -1912,6 +1949,144 @@ def get_AppStats(Input1:Device_options,Input2:Device_options,Output1:Device_opti
     App_Stat["Packet Loss"]= a
     
     return App_Stat
+
+
+
+
+@app.get(
+    '/Configure_Status/', 
+    tags=["Get Configuration Status"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Invalid Configuration parameters! Please use valid Configuration parameters."}
+                }
+            },
+        },               
+    },    
+)
+
+
+#@app.route('/monitor_nf_stats/<id>')
+#def monitor_nf_stats(id):
+def Configure_Status(Config_Step):
+    
+    msg = Config_Status(Config_Step)   
+    return msg
+
+
+
+
+@app.get(
+    '/Validate_AP/', 
+    tags=["Validate Access Point"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Successful response.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Access Point Not found! Please check the connections."}
+                }
+            },
+        },               
+    },    
+)
+
+
+#@app.route('/monitor_nf_stats/<id>')
+#def monitor_nf_stats(id):
+def Validate_AP():
+    os.chdir('/home/dolcera')
+    cmd = 'uhd_find_devices'
+    out = os.popen(cmd).read().strip("\n")
+    #for line in out:
+    if 'serial' in out:
+        res = out[138:153].strip("\n")
+        print(res)
+    elif 'No UHD Devices Found' in out:
+        res = out
+        #print('Hi')
+    else:
+        res = 'Drivers are not installed'
+    #print(type(out))
+    return res
+
+
+@app.get(
+    '/Tuning/', 
+    tags=["Tuning Access Point"],
+    responses={
+        404: {
+            "description": "The requested resource was not found",
+            "content": {
+                "application/json": {
+                    "example": {"response":"The requested resource was not found. There is no container running with the given id."}
+                }
+            },
+        },    
+        200: {
+            "description": "Tuning Successfull.",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Success!"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error",
+            "content": {
+                "application/json": {
+                    "example": {"response":"Access Point Not found! Please check the connections."}
+                }
+            },
+        },               
+    },    
+)
+
+
+#@app.route('/monitor_nf_stats/<id>')
+#def monitor_nf_stats(id):
+def Tuning():
+    Tun = 'Tuning'
+    #print(type(out))
+    return Tun
+
+
+
 
 
 #uvicorn.run(app)
