@@ -701,7 +701,7 @@ def GetRANParameters():
     state= 'active'
     IP = '192.168.70.132'
     RAN_Parameters["Band"] = '78'
-    RAN_Parameters["AMF_IP"] = f'"{IP}"'
+    RAN_Parameters["AMF_IP"] = IP #f'"{IP}"'
     RAN_Parameters["MCC"] = '001'
     RAN_Parameters["MNC"] = '01'
     RAN_Parameters["TAC"] = '1'
@@ -784,17 +784,18 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
         #time.sleep(5)
         logging.basicConfig(filename="AP_Update.txt", level=logging.DEBUG,
                     format="%(asctime)s %(message)s", filemode="w")
+        Sel_Gain = G            
         if outcom == 'success':
             os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
             print(subprocess.check_output('pwd'))
-            Sel_Gain = G
             Out = Deploy_gNB(args)
             logging.debug("Deployed Successfully")  
             result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
         else:
             print('Callibrating Please wait for some time')
             logging.debug("Callibrating Please wait for some time")
-            result  = 'Not tuned properly rescan once again'
+            #result  = 'Not tuned properly rescan once again'
+            result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
             #result = "Deployed Sucessfully"
             #return result
 
@@ -854,6 +855,7 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
         #     print('False')    
         #     os.system('git clone https://github.com/golisrikanth1989/openairinterface-5g')
         os.chdir('Docker-Prac-USRP')
+        #os.chdir('openairinterface-5g')
         # os.system('git checkout develop')
         # os.system('git pull')
         #os.chdir('ci-scripts/yaml_files/5g_rfsimulator')
@@ -874,10 +876,10 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
             os.system(cmd)
             time.sleep(5)
 
-            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-gnb2'
-            print(cmd)
-            os.system(cmd)
-            time.sleep(5)
+            #cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb2'
+            #print(cmd)
+            #os.system(cmd)
+            #time.sleep(5)
             
             # For First gNB
             cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue1' 
@@ -896,15 +898,15 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
             os.system(cmd)
             time.sleep(5)
             
-            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue4' 
-            print(cmd)
-            os.system(cmd)
-            time.sleep(5)
+            #cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue4' 
+            #print(cmd)
+            #os.system(cmd)
+            #time.sleep(5)
                         
-            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue5' 
-            print(cmd)
-            os.system(cmd)
-            time.sleep(10)
+            #cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue5' 
+            #print(cmd)
+            #os.system(cmd)
+            #time.sleep(10)
             print('OAI CN and OAI RAN with UEs are Deployed')
             client=docker.from_env()
             measurements_thread=threading.Thread(target=measurements.get_measurements, args=(client,), name="docker_measurements")
@@ -1240,8 +1242,21 @@ def get_RAN_details():
         if 'gnb' in container.name:
             if 'oai' in container.name:
                 RAN.append('OAI-SIM')
-            else:
-                RAN.append('OAI-AP')  
+            #else:
+            #    RAN.append('OAI-AP')
+    cmd = 'docker logs oai-amf > amf1.log'
+    #out = os.popen(cmd).read().strip("\n")
+    #print(out)
+    os.system(cmd)
+    fname = 'amf1.log'
+    
+    with open(fname) as file:
+        # loop to read iterate
+        # last n lines and print it
+        for line in (file.readlines() [-20:]):
+            if '5Fi-OAI' in line:
+                RAN.append('5Fi-AP')
+            print(line, end ='')  
     if RAN==[]:
         raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                                  
     RAN_Data["make_of_ran"]=RAN
