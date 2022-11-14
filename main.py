@@ -106,6 +106,7 @@ App_Details = {
             "name": "Video Analytics/Dashboard",
             "type": "link",
             "url": "https://track-n-label.webflow.io"
+            #"url": "https://wplandingpag.vps.webdock.cloud/demo/player.html"
           }
         ]
       }
@@ -239,7 +240,7 @@ tags_metadata = [
     },  
     {
         "name": "Get Network Issues and Resolving Actions",
-        "description": "Get Packets of the container with containerid mentioned.",
+        "description": "Get Network Issues if any of the container fails.",
     },     
     {
         "name": "SignIn",
@@ -335,7 +336,7 @@ def run_command(command):
                 count+=1
             if 'PDUSESSIONSetup successful message' in str(output):
                 sucess = 1
-        if count>2:
+        if count>5:
             #count = 0
             print('CMD is closed')
             pgid = os.getpgid(process.pid)
@@ -357,7 +358,7 @@ def Deploy_gNB(command):
     print(subprocess.check_output('pwd'))
     #cmd1 = subprocess.Popen(['echo',sudo_password], stdout=subprocess.PIPE)
 #   popen = subprocess.Popen(['sudo','-S'] + args, stdin=cmd1.stdout, stdout=subprocess.PIPE)
-    process = subprocess.Popen(command,stdout=subprocess.PIPE)
+    process = subprocess.Popen(command,stdout=subprocess.PIPE,preexec_fn=os.setpgrp)
     count = 0
     sucess = 0
     while True:
@@ -366,7 +367,7 @@ def Deploy_gNB(command):
             break
         if output:
             print(output.strip())
-            return 'Callibrated and Deployed Successfully'
+            return {process.pid,'Callibrated and Deployed Successfully'}
 
 
 
@@ -530,10 +531,11 @@ def get_console(client,id):
 #@app.route('/monitor_nf_packets/<id>')
 def get_packets(client,id):
     #dictionaries for json
-    monitor_nf={"NF_packets":''}
+    monitor_nf={"packet data":''}
     container=client.containers.list(filters={"id":id})
-    monitor_nf["NF_packets"]=packets.get_packets(container[0].name)
-    return jsonify(monitor_nf),200
+    print(container[0].name)
+    monitor_nf["packet data"]=packets.get_packets(container[0].name)
+    return monitor_nf,200
 
 def get_network_attention(tag_issue,CMessage,CSite,CSwitch,CPort,CID):
     network_attention = [{"Tag":tag_issue,"Message" : CMessage, "Site" : CSite,"Switch":CSwitch, "Port": CPort,"ID":CID}]      
@@ -769,9 +771,9 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
     #os.system('echo %s|sudo -S %s' % (Sudo_Pass, cmd))
     time.sleep(3)
 
-    Gain = [60,80,90,100]
+    Gain = [60,80,90]
     args = ["sudo","./nr-softmodem", "-O","../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf", "--sa", "-E", "--continuous-tx"]
-
+    
     for G in Gain:
         for x in range(100):
             print(G)  
@@ -781,7 +783,7 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
         os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
         print(subprocess.check_output('pwd'))
         outcom = run_command(args)
-        #time.sleep(5)
+        time.sleep(5)
         logging.basicConfig(filename="AP_Update.txt", level=logging.DEBUG,
                     format="%(asctime)s %(message)s", filemode="w")
         Sel_Gain = G            
@@ -794,15 +796,17 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
         else:
             print('Callibrating Please wait for some time')
             logging.debug("Callibrating Please wait for some time")
-            #result  = 'Not tuned properly rescan once again'
+            result  = 'Not tuned properly rescan once again'
+        
+        if G == 90 and result == 'Not tuned properly rescan once again':
+            Out = Deploy_gNB(args)
             result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
+            
             #result = "Deployed Sucessfully"
             #return result
 
-
-
         #result = "Deployed Sucessfully"
-        return result #templates.TemplateResponse('index.html', context={'request': request, 'result': result})
+    return result #templates.TemplateResponse('index.html', context={'request': request, 'result': result})
 
 
 
@@ -876,10 +880,10 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
             os.system(cmd)
             time.sleep(5)
 
-            #cmd = 'docker-compose -f docker-compose.yaml up -d oai-gnb2'
-            #print(cmd)
-            #os.system(cmd)
-            #time.sleep(5)
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-gnb2'
+            print(cmd)
+            os.system(cmd)
+            time.sleep(5)
             
             # For First gNB
             cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue1' 
@@ -898,15 +902,15 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
             os.system(cmd)
             time.sleep(5)
             
-            #cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue4' 
-            #print(cmd)
-            #os.system(cmd)
-            #time.sleep(5)
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue4' 
+            print(cmd)
+            os.system(cmd)
+            time.sleep(5)
                         
-            #cmd = 'docker-compose -f docker-compose.yaml up -d oai-nr-ue5' 
-            #print(cmd)
-            #os.system(cmd)
-            #time.sleep(10)
+            cmd = 'docker-compose -f docker-compose-prac.yaml up -d oai-nr-ue5' 
+            print(cmd)
+            os.system(cmd)
+            time.sleep(10)
             print('OAI CN and OAI RAN with UEs are Deployed')
             client=docker.from_env()
             measurements_thread=threading.Thread(target=measurements.get_measurements, args=(client,), name="docker_measurements")
@@ -1699,10 +1703,11 @@ def get_Logs(id):
 )
 def get_packets(id):
     client=docker.from_env()
-    monitor_nf={"NF_packets":''}
+    monitor_nf={"packet data":''}
     container=client.containers.list(filters={"id":id})
-    monitor_nf["NF_packets"]=packets.get_packets(container[0].name)
-    return jsonable_encoder(monitor_nf),200
+    print(container[0].name)
+    monitor_nf["packet data"]=packets.get_packets(container[0].name)
+    return monitor_nf,200
     #container=client.containers.list(filters={"id":id})
     #return {"packet data": packets.get_packets(container[0].name)}
 ######################################################################################################################################################
