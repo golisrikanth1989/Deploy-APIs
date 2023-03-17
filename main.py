@@ -307,7 +307,7 @@ def write_var_to_file(config_file: str, variable_name: str, variable_content: st
         line_split: List[str] = line.split('=')
         var_name: str = line_split[0].strip()  # use strip() to remove empty space
         if var_name == variable_name:
-            var_value: str = variable_content + ";\n"
+            var_value: str = variable_content + "\n"#+ ";\n"
             line: str = F"{var_name} = {var_value}"
 
         lines[index] = line
@@ -751,61 +751,88 @@ def GetRANParameters():
 
 def RAN_Deploy(params=Depends(RAN_Parameters)):
     #print(RAN_Parameters)
-    os.chdir('/home/dolcera/5GTestbed/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF')
-    AMF_IPc = f'"{params.AMF_IP}"'
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="dl_frequencyBand", variable_content=params.Band)
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ul_frequencyBand", variable_content=params.Band)
-    #write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ipv4", variable_content=AMF_IPc)
-
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="mcc", variable_content=params.MCC)
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="mnc", variable_content=params.MNC)
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="tracking_area_code", variable_content=params.TAC)
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="sst", variable_content=params.SST)
-    write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="sd", variable_content=params.SD)
-    
-    os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
-
-    #cmd = 'sudo ./nr-softmodem -O ../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf --sa -E --continuous-tx &'
-    #os.system(cmd)
-    #Sudo_Pass = 'dOLCERA@123'
-    #os.system('echo %s|sudo -S %s' % (Sudo_Pass, cmd))
-    time.sleep(3)
-
-    Gain = [60,80,90]
-    args = ["sudo","./nr-softmodem", "-O","../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf", "--sa", "-E", "--continuous-tx"]
-    
-    for G in Gain:
-        for x in range(100):
-            print(G)  
+    choice = 2
+    if (choice==1):   
         os.chdir('/home/dolcera/5GTestbed/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF')
-        print(subprocess.check_output('pwd'))
-        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="max_rxgain", variable_content=str(G))
+        AMF_IPc = f'"{params.AMF_IP}"'
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="dl_frequencyBand", variable_content=params.Band)
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ul_frequencyBand", variable_content=params.Band)
+        #write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ipv4", variable_content=AMF_IPc)
+
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="mcc", variable_content=params.MCC)
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="mnc", variable_content=params.MNC)
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="tracking_area_code", variable_content=params.TAC)
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="sst", variable_content=params.SST)
+        write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="sd", variable_content=params.SD)
+    
         os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
-        print(subprocess.check_output('pwd'))
-        outcom = run_command(args)
-        time.sleep(5)
-        logging.basicConfig(filename="AP_Update.txt", level=logging.DEBUG,
-                    format="%(asctime)s %(message)s", filemode="w")
-        Sel_Gain = G            
-        if outcom == 'success':
+
+        #cmd = 'sudo ./nr-softmodem -O ../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf --sa -E --continuous-tx &'
+        #os.system(cmd)
+        #Sudo_Pass = 'dOLCERA@123'
+        #os.system('echo %s|sudo -S %s' % (Sudo_Pass, cmd))
+        time.sleep(3)
+
+        Gain = [60,80,90]
+        args = ["sudo","./nr-softmodem", "-O","../../../targets/PROJECTS/GENERIC-NR-5GC/CONF/gnb_5fi_b210.conf", "--sa", "-E", "--continuous-tx"]
+    
+        for G in Gain:
+            for x in range(100):
+                print(G)  
+            os.chdir('/home/dolcera/5GTestbed/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF')
+            print(subprocess.check_output('pwd'))
+            write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="max_rxgain", variable_content=str(G))
             os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
             print(subprocess.check_output('pwd'))
-            Out = Deploy_gNB(args)
-            logging.debug("Deployed Successfully")  
-            result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
-        else:
-            print('Callibrating Please wait for some time')
-            logging.debug("Callibrating Please wait for some time")
-            result  = 'Not tuned properly rescan once again'
+            outcom = run_command(args)
+            time.sleep(5)
+            logging.basicConfig(filename="AP_Update.txt", level=logging.DEBUG,
+                    format="%(asctime)s %(message)s", filemode="w")
+            Sel_Gain = G            
+            if outcom == 'success':
+                os.chdir('/home/dolcera/5GTestbed/openairinterface5g/cmake_targets/ran_build/build')
+                print(subprocess.check_output('pwd'))
+                Out = Deploy_gNB(args)
+                logging.debug("Deployed Successfully")  
+                result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
+            else:
+                print('Callibrating Please wait for some time')
+                logging.debug("Callibrating Please wait for some time")
+                result  = 'Not tuned properly rescan once again'
         
-        if G == 90 and result == 'Not tuned properly rescan once again':
-            Out = Deploy_gNB(args)
-            result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
+            if G == 90 and result == 'Not tuned properly rescan once again':
+                Out = Deploy_gNB(args)
+                result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
             
-            #result = "Deployed Sucessfully"
-            #return result
+                #result = "Deployed Sucessfully"
+                #return result
+    elif choice == 2:
+            AMF_IPc = f'"{params.AMF_IP}"'
+            plmn_id = f'"{params.MCC}{params.MNC}"'
+            print(plmn_id)
+            Sel_Gain = 80
+            write_var_to_file(config_file="start_stop.py", variable_name="nr_band", variable_content=params.Band)
+            write_var_to_file(config_file="start_stop.py", variable_name="tx_gain", variable_content=str(Sel_Gain))
+            #write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ipv4", variable_content=AMF_IPc)
 
-        #result = "Deployed Sucessfully"
+            write_var_to_file(config_file="start_stop.py", variable_name="epc_plmn", variable_content=plmn_id)
+            #write_var_to_file(config_file="start_stop.py", variable_name="mnc", variable_content=params.MNC)
+            #write_var_to_file(config_file="start_stop.py", variable_name="tracking_area_code", variable_content=params.TAC)
+            #write_var_to_file(config_file="start_stop.py", variable_name="sst", variable_content=params.SST)
+            write_var_to_file(config_file="start_stop.py", variable_name="state1", variable_content=f'"{"started"}"')
+            
+            #command = 'sudo su'
+            print(subprocess.check_output('pwd'))
+            #cmd1 = subprocess.Popen(['echo',sudo_password], stdout=subprocess.PIPE)
+            #   popen = subprocess.Popen(['sudo','-S'] + args, stdin=cmd1.stdout, stdout=subprocess.PIPE)
+
+            #process = subprocess.Popen(command,stdout=subprocess.PIPE,preexec_fn=os.setpgrp)
+            #os.system(command)
+            cmd = 'su root -c' + f'{"slapos console --cfg ~/.slapos/slapos-client.cfg /home/dolcera/5Fi_APIs/Deploy-APIs/start_stop.py"}'
+            res = os.system(cmd)
+            print(res)
+            result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
+            #result = "Deployed Sucessfully"
     return result #templates.TemplateResponse('index.html', context={'request': request, 'result': result})
 
 
@@ -2110,7 +2137,7 @@ def Tuning():
 
 
 #uvicorn.run(app)
-uvicorn.run(app, host = "0.0.0.0", port = 3002, log_level = "debug", debug = True)
+uvicorn.run(app, host = "0.0.0.0", port = 3001, log_level = "debug", debug = True)
 
 #docker_deploy('OAI','OAI')
 #client=docker.from_env()

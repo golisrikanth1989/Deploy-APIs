@@ -870,7 +870,7 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
       print(data8)
       time.sleep(5)
       assert data8 == "ui-bar ui-corner-all first-child ui-btn-ok"
-      link_ors = driver.find_element(By.XPATH, "/html/body/div/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr[9]/td[1]/a")
+      link_ors = driver.find_element(By.XPATH, "/html/body/div/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr["+str(tab_len)+"]/td[1]/a")
       link_ors.click()
       with open("ORS_status_US.txt", "a") as f:
           f.write(data8)
@@ -902,7 +902,7 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
     if "ok" in data8:
         os.chdir('/home/dolcera/5Fi_APIs/Deploy-APIs')
         result = f'Deployed Sucessfully with Gain {params.Gain}'
-        url = "wget --user=admin --password=LyZHtPLJ3Qo0TFlA https://softinst178418.host.vifib.net/share/private/log/gnb.log"
+        url = "wget --user=admin --password=dWi5B8oy6FEzuoH3 https://softinst182358.host.vifib.net/share/private/log/gnb.log"
         os.system(url)
         print(os.getcwd())
         print(os.getcwd())
