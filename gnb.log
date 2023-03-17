@@ -421,3 +421,5 @@
 01:53:28.845 [PHY] UL    - 01    -  573.19 PRACH: sequence_index=29 ta=4 prb=7:12 symb=2:12 snr=9.3
 01:53:28.905 [PHY] UL    - 01    -  579.19 PRACH: sequence_index=29 ta=4 prb=7:12 symb=2:12 snr=9.0
 04:39:09.492 [PHY] UL    - 01    -  334.19 PRACH: sequence_index=48 ta=2 prb=7:12 symb=2:12 snr=9.2
+08:14:29.167 [PHY] UL    - 01    -   14.19 PRACH: sequence_index=59 ta=3 prb=7:12 symb=2:12 snr=9.1
+08:14:41.697 [PHY] UL    - 01    -  243.19 PRACH: sequence_index=45 ta=29 prb=7:12 symb=2:12 snr=9.1
