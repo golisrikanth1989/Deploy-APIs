@@ -13,7 +13,7 @@ epc_plmn = "00101"
 tx_gain = 80
 nr_band = 78
 dl_nr_arfcn = 646666
-obj = {"epc_plmn": epc_plmn, "tx_gain": tx_gain, "rx_gain": 35, "dl_nr_arfcn": dl_nr_arfcn, "nr_band": nr_band, "use_ipv4": True}
+obj = {"epc_plmn": epc_plmn, "tx_gain": tx_gain, "rx_gain": 70, "dl_nr_arfcn": dl_nr_arfcn, "nr_band": nr_band, "use_ipv4": True}
 state1 = "started"
 
 
