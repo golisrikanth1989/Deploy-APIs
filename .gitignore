@@ -1,7 +1,5 @@
 __pycache__/indexes.cpython-39.pyc
 __pycache__/measurements.cpython-39.pyc
 chromedriver_linux64
-amf1.log
-gnb.log
-ORS_status_Hyd.txt
-ORS_status_US.txt
+*.log
+*.txt
