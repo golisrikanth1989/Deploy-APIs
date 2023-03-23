@@ -1,5 +1,5 @@
 __pycache__/indexes.cpython-39.pyc
 __pycache__/measurements.cpython-39.pyc
-chromedriver_linux64
+chromedriver_linux64/
 *.log
 *.txt
