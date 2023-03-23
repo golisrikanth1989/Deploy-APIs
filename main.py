@@ -162,7 +162,7 @@ class Device_options(str, Enum):
 
 class RAN_Parameters(BaseModel):
     Band: Optional[str] = '78'
-    AMF_IP:Optional[str] = '192.168.71.132'
+    AMF_IP:Optional[str] = '10.2.50.115'#192.168.71.132'
     MCC: Optional[str] = '001'
     MNC: Optional[str] = '01'
     TAC: Optional[str] = '1'
@@ -813,24 +813,16 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
             Sel_Gain = 80
             write_var_to_file(config_file="start_stop.py", variable_name="nr_band", variable_content=params.Band)
             write_var_to_file(config_file="start_stop.py", variable_name="tx_gain", variable_content=str(Sel_Gain))
-            #write_var_to_file(config_file="gnb_5fi_b210.conf", variable_name="ipv4", variable_content=AMF_IPc)
-
             write_var_to_file(config_file="start_stop.py", variable_name="epc_plmn", variable_content=plmn_id)
-            #write_var_to_file(config_file="start_stop.py", variable_name="mnc", variable_content=params.MNC)
-            #write_var_to_file(config_file="start_stop.py", variable_name="tracking_area_code", variable_content=params.TAC)
-            #write_var_to_file(config_file="start_stop.py", variable_name="sst", variable_content=params.SST)
             write_var_to_file(config_file="start_stop.py", variable_name="state1", variable_content=f'"{"started"}"')
             
-            #command = 'sudo su'
             print(subprocess.check_output('pwd'))
-            #cmd1 = subprocess.Popen(['echo',sudo_password], stdout=subprocess.PIPE)
-            #   popen = subprocess.Popen(['sudo','-S'] + args, stdin=cmd1.stdout, stdout=subprocess.PIPE)
 
-            #process = subprocess.Popen(command,stdout=subprocess.PIPE,preexec_fn=os.setpgrp)
-            #os.system(command)
-            cmd = 'su root -c' + f'{"slapos console --cfg ~/.slapos/slapos-client.cfg /home/dolcera/5Fi_APIs/Deploy-APIs/start_stop.py"}'
-            res = os.system(cmd)
-            print(res)
+            command = "sudo su -c 'slapos console --cfg ~/.slapos/slapos-client.cfg /home/dolcera/5Fi_APIs/Deploy-APIs/start_stop.py'"
+
+            ret = os.system(command)#subprocess.run(command, capture_output=True, shell=True)
+
+            print(ret)
             result =  f'Deployed Sucessfully with Gain {Sel_Gain}'
             #result = "Deployed Sucessfully"
     return result #templates.TemplateResponse('index.html', context={'request': request, 'result': result})

@@ -4,3 +4,7 @@ ui-bar ui-corner-all first-child ui-btn-color-white
 ui-bar ui-corner-all first-child ui-btn-color-white
 ui-bar ui-corner-all first-child ui-btn-color-white
 ui-bar ui-corner-all first-child ui-btn-color-white
+ui-bar ui-corner-all first-child ui-btn-color-white
+ui-bar ui-corner-all first-child ui-btn-color-white
+ui-bar ui-corner-all first-child ui-btn-color-white
+ui-bar ui-corner-all first-child ui-btn-color-white
