@@ -21,7 +21,7 @@ result = json.dumps(obj)
 print(type(obj))
 print(type(result))
 
-ret = request(software_release = "https://lab.nexedi.com/nexedi/slapos/raw/1.0.308/software/ors-amarisoft/software-tdd3700.cfg",
+ret = request(software_release = "https://lab.nexedi.com/nexedi/slapos/raw/1.0.312/software/ors-amarisoft/software-tdd3700.cfg",
               partition_reference = "ors17-nr",
               software_type = "gnb-epc",
               filter_kw = { 'computer_guid' : "COMP-3517" },

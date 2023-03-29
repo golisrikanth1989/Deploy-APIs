@@ -27,10 +27,24 @@ import threading
 import measurements
 import packets
 from fastapi.encoders import jsonable_encoder
+
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver import ActionChains
+from selenium.webdriver.chrome.options import Options
+
+from datetime import datetime
+import dateutil.parser
 ################################################################################################################################################################
 #                                                                Defining Dictionaries for List of Elements                                                    #
 ################################################################################################################################################################
 CN_List = [
+    {"name" : "5-Fi", "status" : True},
     {"name" : "OAI", "status" : True},
     {"name" : "free5GC", "status" : True},
     {"name" : "Azure Private 5G Core", "status" : False},
@@ -38,6 +52,7 @@ CN_List = [
 ]
 RAN_List = [
     {"name" : "OAI", "status" : True},
+    {"name" : "5-Fi", "status" : True},
     {"name" : "UERANSIM", "status" : True},
     {"name" : "Baicells", "status" : False},
     {"name" : "Nokia", "status" : False}
@@ -136,12 +151,14 @@ class CN_options(str, Enum):
     OAI = "OAI"
     Azure = "Azure Private 5GCore"
     Nokia = "Nokia"
+    FFi = "5-Fi"
 
 class RAN_options(str, Enum):
     UERANSIM = "UERANSIM"
     OAI = "OAI"
     AirSpan = "AirSpan"
-    Baicells = "Balicells"
+    Baicells = "Baicells"
+    FFi = "5-Fi"
 
 class UE_options(str, Enum):
     free5gc = "UERANSIM"
@@ -868,7 +885,89 @@ def RAN_Deploy(params=Depends(RAN_Parameters)):
 ####################################################################################################################
 
 def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Quantity,Cameras_Make: UE_options,Cameras_Quantity,Sensors_Make: UE_options,Sensors_Quantity,AGVs_Make:UE_options,AGVs_Quantity,Actuators_Make:UE_options,Actuators_Quantity,Others_Make:UE_options, Other_Quantity):
-    if CN_Make == 'OAI' and RAN_Make == 'OAI':
+    if CN_Make == '5-Fi' and RAN_Make == '5-Fi':
+        print("5-Fi CN and 5-Fi RAN")
+        write_var_to_file(config_file="start_stop.py", variable_name="state1", variable_content=f'"{"stopped"}"')
+            
+        command = "sudo su -c 'slapos console --cfg ~/.slapos/slapos-client.cfg /home/dolcera/5Fi_APIs/Deploy-APIs/start_stop.py'"
+
+        ret_stop = os.system(command)#subprocess.run(command, capture_output=True, shell=True)
+
+        time.sleep(50)
+
+        write_var_to_file(config_file="start_stop.py", variable_name="state1", variable_content=f'"{"started"}"')
+            
+        command = "sudo su -c 'slapos console --cfg ~/.slapos/slapos-client.cfg /home/dolcera/5Fi_APIs/Deploy-APIs/start_stop.py'"
+
+        ret_start = os.system(command)#subprocess.run(command, capture_output=True, shell=True)
+
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+         
+        #service_obj = Service(executable_path="/home/dolcera/Deploy-APIs/chromedriver_linux64/chromedriver.exe")
+        driver = webdriver.Chrome(executable_path="/home/dolcera/5Fi_APIs/Deploy-APIs/chromedriver_linux64/chromedriver",chrome_options=chrome_options) #service=service_obj)
+        driver.maximize_window()
+        #driver = webdriver.Chrome(executable_path="/home/dolcera/5Fi_APIs/Deploy-APIs/chromedriver_linux64") #service=service_obj)
+        #driver.maximize_window()
+        driver.get("https://panel.rapid.space/hateoas/connection/login_form?came_from=https%3A%2F%2Fpanel.rapid.space%2F%23%21login%3Fp.page%3Dslap_service_list%26p.editable%3Dtrue%7B%26n.me%7D")
+
+        time.sleep(3)
+        driver.find_element_by_name("__ac_name").send_keys("manoj1919")
+        driver.find_element_by_name("__ac_password").send_keys("Dolcera@123")
+        driver.find_element_by_name("WebSite_login:method").click()
+        time.sleep(25) 
+  
+        table_body = WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/div/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr")))
+        tab_len = len(table_body)
+        print(tab_len)
+        ii = 1
+        #driver.find_element(By.XPATH,"/html/body/div[1]/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr[2]/td[1]/a").click() 
+        for id in table_body:
+            #time.sleep(10)
+            title  = id.find_element(By.XPATH,"/html/body/div/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr["+str(ii)+"]/td[1]/a")
+            status = id.find_element(By.XPATH,"/html/body/div/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr["+str(ii)+"]/td[3]/a/div/div/div/div/div[1]/div").get_attribute("class")
+            print(title.text,status)
+            
+            if title.text == "ors17-nr":
+                data = driver.find_element(By.XPATH,"/html/body/div[1]/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr["+str(ii)+"]/td[1]/a") 
+                data.click()
+                time.sleep(10)
+            
+                
+                #table_body1 = WebDriverWait(driver,20).until(EC.presence_of_all_elements_located((By.XPATH, "/html/body/div[1]/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody")))
+                #tab_len1 = len(table_body1)
+                #print(tab_len1)
+                cn_data1 = driver.find_element(By.XPATH,"/html/body/div[1]/div[9]/div/div/form/div/div/div[4]/div[4]/div/div/div/table/tbody/tr[2]/td[1]/a")
+                cn_data2 = driver.find_element(By.XPATH,"/html/body/div/div[9]/div/div/form/div/div/div[4]/div[4]/div/div/div/table/tbody/tr[2]/td[5]/a/div/div/div/div/div[1]/div").get_attribute("class")
+                
+                print(cn_data1.text,cn_data2)
+
+                if cn_data1.text == 'MME' and ('ok' in cn_data2):
+                    print("Everything is fine")
+                    Depl_Res = {"response":"Success! Network deployed!"}
+                    break
+                else:
+                    print("Something is Wrong")
+                    Depl_Res = {"response":"Something Wrong in the Deployment"}
+                    break 
+            #else:
+            #    print("Something is Wrong")
+            #    Depl_Res = {"response":"Something Wrong in the Deployment"}
+            #    break        
+            ii = ii+1
+        #        time.sleep(10)
+        #        print(data)  
+        
+        #print("donae")
+        #if tab_len == 4:
+        #   data = driver.find_element(By.XPATH,"/html/body/div[1]/div[9]/div/div/form/div[2]/div/div/div/div/div/div/table/tbody/tr[2]/td[3]/a/div/div/div/div/div[1]/div/a") 
+        #   print(data.text)
+
+
+        #Depl_Res = {"response":"Success! Network deployed!"}
+    elif CN_Make == 'OAI' and RAN_Make == 'OAI':
         print("OAI CN and OAI RAN")
         os.chdir('../')
         #check if directory already exists
@@ -999,7 +1098,7 @@ def deploy_Scenario(CN_Make: CN_options,CN_Quantity,RAN_Make: RAN_options,RAN_Qu
                 time.sleep(10)
     else :
         return {"Choose Approproiate Option"}
-    return {"response":"Success! Network deployed!"} 
+    return Depl_Res#{"response":"Success! Network deployed!"} 
 
 """ def deploy_Scenario(CN: CN_options, CN_Quantity, RAN: RAN_options, RAN_Quantity):
     #try:
@@ -1207,24 +1306,68 @@ def get_CN_details():
     "no_upfs":0,
     "cn_count":0,	
     }
-    state= 'active'
-    client=docker.from_env()
-    CN = []    
-    Count=0
-    for container in client.containers.list():
-        print(container.name)
-        if 'webui' in container.name:
-            CN.append('free5gc')
-            Count = Count+1
-        elif 'spgw' in container.name:
-            CN.append('OAI')
-            Count = Count+1        
-    if CN==[]:
-        raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
-    CN_Data["make_of_cn"]=CN
-    CN_Data["no_nfs"], x, CN_Data["no_connected_gnbs"], CN_Data["no_upfs"]=count_NFs(client)
-    CN_Data["state"]=state
-    CN_Data["cn_count"]=Count
+    choice = 2
+    if choice == 1:
+        state= 'active'
+        client=docker.from_env()
+        CN = []    
+        Count=0
+        for container in client.containers.list():
+            print(container.name)
+            if 'webui' in container.name:
+                CN.append('free5gc')
+                Count = Count+1
+            elif 'spgw' in container.name:
+                CN.append('OAI')
+                Count = Count+1        
+        if CN==[]:
+            raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
+        CN_Data["make_of_cn"]=CN
+        CN_Data["no_nfs"], x, CN_Data["no_connected_gnbs"], CN_Data["no_upfs"]=count_NFs(client)
+        CN_Data["state"]=state
+        CN_Data["cn_count"]=Count
+    elif choice == 2:
+        state = 'active'
+        CN = []
+        os.chdir('/home/dolcera/5Fi_APIs/Deploy-APIs')
+        url = "wget --user=admin --password=yvsIBNgxFWy38gVt https://softinst182367.host.vifib.net/share/private/log/mme-output.log -O mme_ors17.log"
+        os.system(url)
+        fname = 'mme_ors17.log'
+        if(os.path.isfile('/home/dolcera/5Fi_APIs/Deploy-APIs/mme_ors17.log')):
+            print(os.getcwd())
+            with open(fname) as file:
+                # loop to read iterate
+                # last n lines and print it
+                dt_utcnow = datetime.utcnow()
+                #date_time_obj = datetime.strptime(dt_utcnow, '%Y/%m/%d %H:%M:%S')
+                print(dt_utcnow.time())
+                for line in (file.readlines() [-10:]):
+                    #print(line, end ='')
+                    if '2023' in line:
+                        print(line,end='')
+                        log_date=dateutil.parser.parse(line, fuzzy=True)
+                        print(type(log_date))
+                        print(log_date)
+                        log_date = log_date.strftime("%Y-%m-%d %H:%M:%S.%f")
+                        log_date = datetime.strptime(log_date,"%Y-%m-%d %H:%M:%S.%f")
+                        print(log_date.time())
+                        time_diff = dt_utcnow - log_date
+
+                        #print(type(dt_utcnow.time()))
+                        #print(type(log_date.time()))
+                        
+                        print(time_diff.total_seconds())
+                        if time_diff.total_seconds() < 20000:
+                           CN.append('5-Fi')
+        if CN==[]:
+            raise HTTPException(status_code=404, detail="There is no network deployed. Try deploying a network first.")                     
+        CN_Data["make_of_cn"]=CN         
+                    #if str(date_time_obj.date()) in line:
+                    #    print("Good Match")  
+
+                    #if 'NG setup response' in line:
+                    #    CN.append('5-Fi')
+                    #    break
     return (CN_Data)
 
 ###########################################################################
